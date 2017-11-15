@@ -47,7 +47,7 @@ class Pb extends Component {
   }
   componentDidMount() {
     //TODO: invalidate cache after one hour
-    if (localStorage.getItem('aggro.pb')) {
+    if (!localStorage.getItem('aggro.pb')) {
       console.log('loading cached scrape')
       this.setState({ shows: JSON.parse(localStorage.getItem('aggro.pb')) })
     } else {
@@ -85,12 +85,7 @@ class Pb extends Component {
                 <img src="https://eztv.ag/images/magnet-icon-5.png" />
               </a>
               {x.name}
-              {/* <a href="https://www.googleapis.com/youtube/v3/search?key=AIzaSyBjnMTlF9ou968qeDBc6LQpN860jJ0Juj0&q=thor&part=snippet">
-                <img
-                  src="https://i.ytimg.com/vi/ue80QwXMRHg/default.jpg"
-                  style={{ height: 16, width: 16 }}
-                />
-              </a> */}
+              <Youtubelink fullname={x.name} />
             </li>
           ))}
         </ul>
@@ -98,7 +93,65 @@ class Pb extends Component {
     )
   }
 }
+const Youtubelink = ({ fullname }) => {
+  // console.log('123', pbParse(fullname).title)
+  const title = pbParse(fullname).title
+  if (!title) return null
+  const url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyBjnMTlF9ou968qeDBc6LQpN860jJ0Juj0&q=${title}&part=snippet`
+  return (
+    <a href={url}>
+      <img
+        src="https://i.ytimg.com/vi/ue80QwXMRHg/default.jpg"
+        style={{ height: 16, width: 16 }}
+      />
+    </a>
+  )
+}
 
+export const pbParse = input => {
+  if (!input) return false
+  if (input.includes('Season') && input.includes('Complete')) return false
+  if (!input.includes('[ettv]')) return false
+  if (
+    input.match(/(Home And Away)|(Judge Judy)|(Coronation Street)|(Emmerdale)/)
+  )
+    return false
+  const e =
+    input.match(/S\d\dE\d\d/) ||
+    input.match(/\d{4} \d{2} \d{2}/) ||
+    input.match(/Series \d \d{1,2}of\d{1,2}/)
+  const episode = e ? e.toString() : ''
+  const q = input.match(/1080p/) || input.match(/720p/)
+  const size =
+    input.match(/Size (.*?), ULed/) &&
+    input.match(/Size (.*?), ULed/).length > 1 &&
+    input
+      .match(/Size (.*?), ULed/)[1]
+      .replace('MiB', 'MB')
+      .replace('GiB', 'GB')
+  const quality = q ? q.toString() : 'HDTV'
+  const episodeIndex = input.indexOf(episode)
+  const uploadedIndex = input.indexOf('Uploaded')
+  const endOfTitleIndex = episodeIndex
+  const title = input
+    .slice(0, endOfTitleIndex - 1)
+    .replace(/\./g, ' ')
+    .replace(/\n/g, '')
+    .replace(/\t/g, '')
+  const name = input
+    .slice(0, uploadedIndex - 1)
+    .replace(/\./g, ' ')
+    .replace(/\n/g, '')
+    .replace(/\t/g, '')
+  return {
+    episode,
+    quality,
+    size,
+    title,
+    name,
+    uploader: 'ettv',
+  }
+}
 class Ez extends Component {
   state = {
     shows: [],
