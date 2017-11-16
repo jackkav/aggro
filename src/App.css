@@ -1,43 +1,34 @@
-body {
-  margin: 40px;
+@import '~antd/dist/antd.css';
+
+.App {
+  text-align: center;
 }
 
-.sidebar {
-  grid-area: sidebar;
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
 }
 
-.content {
-  grid-area: content;
-}
-
-.header {
-  grid-area: header;
-}
-
-.wrapper {
-  display: grid;
-  grid-gap: 10px;
-  grid-template-columns: 120px 120px 120px;
-  grid-template-areas: 'header  header  header' 'sidebar content content';
-  background-color: #fff;
-  color: #444;
-}
-
-.box {
-  background-color: #444;
-  color: #fff;
-  border-radius: 5px;
+.App-header {
+  background-color: #222;
+  height: 150px;
   padding: 20px;
-  font-size: 150%;
+  color: white;
 }
 
-.header {
-  background-color: #999;
+.App-title {
+  font-size: 1.5em;
 }
 
-.overlay {
-  background-color: red;
-  z-index: 10;
-  grid-column: content-start / content-end;
-  grid-row: header-start / content-end;
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

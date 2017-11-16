@@ -1,23 +1,33 @@
 import React, { Component } from 'react'
 import cheerio from 'cheerio'
 import styled from 'styled-components'
-
+import { Table, Icon } from 'antd'
+import { old, notold } from './test'
+import './App.css'
+const columns = [
+  {
+    title: 'Magnet',
+    key: 'magnet',
+    render: (text, record) => (
+      <span>
+        <a href={record.magnet}>
+          <img src="https://eztv.ag/images/magnet-icon-5.png" />
+        </a>
+      </span>
+    ),
+  },
+  {
+    title: 'Name',
+    dataIndex: 'name',
+    key: 'name',
+  },
+]
 class App extends Component {
   render() {
     return (
       <Root>
-        {/* <Column>
-          <Heading>desc</Heading>123123123123123
-        </Column>
-        <Column>
-          <Heading>desc</Heading>
-          <Pb />
-        </Column>
-        <Column>
-          <Heading>desc</Heading>
-          <Ez />
-        </Column> */}
-        <Pb />
+        <Ez />
+        {/* <Pb /> */}
       </Root>
     )
   }
@@ -26,19 +36,33 @@ const Root = styled.div`
   display: flex;
   flex: 1;
 `
+const BorderBottom = styled.div`
+  display: flex;
+  flex: 1;
+  border-bottom: 1px solid #000;
+`
 const Column = styled.div`
   flex: 1;
-  background-color: #444;
-  color: #fff;
+  flex-direction: column;
+`
+const EpisodeName = styled.div`flex: 1;`
+
+const Actions = styled.div`
+  width: 30;
   padding: 20;
 `
 const Heading = styled.div`
+  display: flex;
   flex: 1;
-  background-color: #444;
-  color: #fff;
   padding: 20;
 `
 export default App
+const expected = (a, b) =>
+  a.map((item, index) => ({
+    ...item,
+    lastIndex: b.findIndex(x => x.magnet === item.magnet),
+  }))
+
 class Pb extends Component {
   state = {
     shows: [],
@@ -47,9 +71,12 @@ class Pb extends Component {
   }
   componentDidMount() {
     //TODO: invalidate cache after one hour
-    if (localStorage.getItem('aggro.pb')) {
-      console.log('loading cached scrape')
-      this.setState({ shows: JSON.parse(localStorage.getItem('aggro.pb')) })
+    if (localStorage.getItem('aggro.pb205')) {
+      console.log(
+        'loading cached scrape',
+        JSON.parse(localStorage.getItem('aggro.pb205')),
+      )
+      this.setState({ shows: JSON.parse(localStorage.getItem('aggro.pb205')) })
     } else {
       localStorage.setItem('aggro.updated', JSON.stringify(new Date()))
       console.log('loading fresh scrape')
@@ -63,11 +90,14 @@ class Pb extends Component {
             const name = $(item)
               .parent()
               .text()
-            this.setState({ shows: [...this.state.shows, { name, magnet }] })
+            // console.log({ index: a, name, magnet })
+            this.setState({
+              shows: [...this.state.shows, { index: a, name, magnet }],
+            })
             // this.setState({ shows: [{ name, magnet }] })
             this.setState({ loading: false })
           })
-          localStorage.setItem('aggro.pb', JSON.stringify(this.state.shows))
+          localStorage.setItem('aggro.pb205', JSON.stringify(this.state.shows))
         })
         .catch(function(error) {
           console.log(JSON.stringify(error))
@@ -77,22 +107,17 @@ class Pb extends Component {
   render() {
     return (
       <div>
-        {this.state.loading && <div>loading</div>}
-        <ul id="authors" style={{ listStyleType: 'none', textAlign: 'left' }}>
-          {this.state.shows.map((x, i) => (
-            <li key={i}>
-              <a href={x.magnet}>
-                <img src="https://eztv.ag/images/magnet-icon-5.png" />
-              </a>
-              <Youtubelink fullname={x.name} />
-              {x.name}
-            </li>
-          ))}
-        </ul>
+        <Table
+          loading={this.state.loading}
+          dataSource={this.state.shows}
+          columns={columns}
+          pagination={false}
+        />
       </div>
     )
   }
 }
+//TODO: only load youtube link on hover
 class Youtubelink extends Component {
   state = {
     icon: 'https://i.ytimg.com/vi/ue80QwXMRHg/default.jpg',
@@ -108,11 +133,11 @@ class Youtubelink extends Component {
       .then(json => {
         const first = json.items[0]
         console.log(first.id.videoId)
-
-        this.setState({
-          icon: first.snippet.thumbnails.default.url,
-          watch: `https://www.youtube.com/watch?v=${first.id.videoId}`,
-        })
+        if (first)
+          this.setState({
+            icon: first.snippet.thumbnails.default.url,
+            watch: `https://www.youtube.com/watch?v=${first.id.videoId}`,
+          })
       })
     return (
       <a href={this.state.watch}>
@@ -171,13 +196,14 @@ class Ez extends Component {
     shows: [],
     page: 0,
     loading: false,
+    whitelist: [],
   }
   componentDidMount() {
     this.setState({ loading: true })
     fetch('https://eztv.ag')
       .then(resp => resp.text())
       .then(body => {
-        console.log(body)
+        // console.log(body)
         const $ = cheerio.load(body)
         $('.magnet').each((a, item) => {
           const name = item.attribs.title
@@ -206,20 +232,20 @@ class Ez extends Component {
         console.log(JSON.stringify(error))
       })
   }
+  click = e => {
+    console.log(e.name)
+    //get e.name and add to whitelist
+  }
   render() {
     return (
       <div>
-        {this.state.loading && <div>loading</div>}
-        <ul id="authors" style={{ listStyleType: 'none', textAlign: 'left' }}>
-          {this.state.shows.map((x, i) => (
-            <li key={i}>
-              <a href={x.magnet}>
-                <img src="https://eztv.ag/images/magnet-icon-5.png" />
-              </a>
-              {x.name}
-            </li>
-          ))}
-        </ul>
+        <Table
+          loading={this.state.loading}
+          dataSource={this.state.shows}
+          columns={columns}
+          pagination={false}
+          onRowClick={e => this.click(e)}
+        />
         <button onClick={() => this.more()}>more</button>
       </div>
     )
