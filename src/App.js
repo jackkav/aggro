@@ -47,7 +47,7 @@ class Pb extends Component {
   }
   componentDidMount() {
     //TODO: invalidate cache after one hour
-    if (!localStorage.getItem('aggro.pb')) {
+    if (localStorage.getItem('aggro.pb')) {
       console.log('loading cached scrape')
       this.setState({ shows: JSON.parse(localStorage.getItem('aggro.pb')) })
     } else {
@@ -84,8 +84,8 @@ class Pb extends Component {
               <a href={x.magnet}>
                 <img src="https://eztv.ag/images/magnet-icon-5.png" />
               </a>
-              {x.name}
               <Youtubelink fullname={x.name} />
+              {x.name}
             </li>
           ))}
         </ul>
@@ -93,19 +93,33 @@ class Pb extends Component {
     )
   }
 }
-const Youtubelink = ({ fullname }) => {
-  // console.log('123', pbParse(fullname).title)
-  const title = pbParse(fullname).title
-  if (!title) return null
-  const url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyBjnMTlF9ou968qeDBc6LQpN860jJ0Juj0&q=${title}&part=snippet`
-  return (
-    <a href={url}>
-      <img
-        src="https://i.ytimg.com/vi/ue80QwXMRHg/default.jpg"
-        style={{ height: 16, width: 16 }}
-      />
-    </a>
-  )
+class Youtubelink extends Component {
+  state = {
+    icon: 'https://i.ytimg.com/vi/ue80QwXMRHg/default.jpg',
+  }
+  render() {
+    // console.log('123', pbParse(fullname).title)
+    const { fullname } = this.props
+    const title = pbParse(fullname).title
+    if (!title) return null
+    const url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyBjnMTlF9ou968qeDBc6LQpN860jJ0Juj0&q=${title}&part=snippet`
+    fetch(url)
+      .then(x => x.json())
+      .then(json => {
+        const first = json.items[0]
+        console.log(first.id.videoId)
+
+        this.setState({
+          icon: first.snippet.thumbnails.default.url,
+          watch: `https://www.youtube.com/watch?v=${first.id.videoId}`,
+        })
+      })
+    return (
+      <a href={this.state.watch}>
+        <img src={this.state.icon} style={{ height: 16, width: 16 }} />
+      </a>
+    )
+  }
 }
 
 export const pbParse = input => {
