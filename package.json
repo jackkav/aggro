@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "antd": "^2.13.10",
     "cheerio": "^1.0.0-rc.2",
     "moment": "^2.19.2",
     "react": "^16.1.1",
