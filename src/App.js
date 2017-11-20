@@ -9,6 +9,10 @@ const Page = ({ title }) => (
       <img src={logo} className="App-logo" alt="logo" />
       <h2>{title}</h2>
     </div>
+    <ul class="flex-container">
+      <div class="flex-item">1</div>
+      <div class="flex-item">2</div>
+    </ul>
     <p className="App-intro">This is the {title} page.</p>
     <p>
       <Link to="/">Home</Link>
@@ -21,8 +25,15 @@ const Page = ({ title }) => (
     </p>
   </div>
 )
-
-const Home = props => <Page title="Home" />
+const Simple = () => (
+  <div className="App">
+    <div class="flex-container">
+      <div class="flex-item">pb tabs</div>
+      <div class="flex-item">ez scroller</div>
+    </div>
+  </div>
+)
+const Home = props => <Simple title="Home" />
 
 const About = props => <Page title="About" />
 
