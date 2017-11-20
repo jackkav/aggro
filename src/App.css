@@ -4,14 +4,15 @@
 }
 .flex-item {
   flex: 1;
-  background: tomato;
+  background: black;
   min-width: 300px;
-  height: 650px;
+  height: 300px;
   margin: 10px;
-
-  line-height: 150px;
+}
+.flex-content {
+  /* line-height: 150px; */
   color: white;
-  font-weight: bold;
-  font-size: 3em;
-  text-align: center;
+  /* font-weight: bold; */
+  font-size: 1rem;
+  text-align: left;
 }

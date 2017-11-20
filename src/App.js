@@ -28,8 +28,20 @@ const Page = ({ title }) => (
 const Simple = () => (
   <div className="App">
     <div class="flex-container">
-      <div class="flex-item">pb tabs</div>
-      <div class="flex-item">ez scroller</div>
+      <div class="flex-item">
+        <div class="flex-content">
+          <img src="https://eztv.ag/images/magnet-icon-5.png" />
+          The.Walking.Dead.S08E03.HDTV.x264-SVA[ettv] Uploaded 11-06 04:05, Size
+          484.97 MiB, ULed by ettv
+        </div>
+      </div>
+      <div class="flex-item">
+        <div class="flex-content">
+          <img src="https://eztv.ag/images/magnet-icon-5.png" />
+          The.Walking.Dead.S08E03.HDTV.x264-SVA[ettv] Uploaded 11-06 04:05, Size
+          484.97 MiB, ULed by ettv
+        </div>
+      </div>
     </div>
   </div>
 )
