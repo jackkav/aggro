@@ -3,14 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "antd": "^2.13.10",
     "cheerio": "^1.0.0-rc.2",
-    "moment": "^2.19.2",
     "react": "^16.1.1",
     "react-dom": "^16.1.1",
-    "react-router": "^4.2.0",
-    "react-scripts": "1.0.17",
-    "styled-components": "^2.2.3"
+    "react-scripts": "1.0.17"
   },
   "scripts": {
     "start": "react-scripts start",
