@@ -1,4 +1,6 @@
-class Ez extends Component {
+import React, { Component } from 'react'
+import cheerio from 'cheerio'
+export class Ez extends Component {
   state = {
     shows: [],
     page: 0,
@@ -16,6 +18,7 @@ class Ez extends Component {
           const magnet = item.attribs.href
           this.setState({ shows: [...this.state.shows, { name, magnet }] })
           this.setState({ loading: false })
+          if (this.state.page < 5) this.more()
         })
       })
       .catch(function(error) {
@@ -23,7 +26,7 @@ class Ez extends Component {
       })
   }
   more = () => {
-    this.setState({ page: this.state.page++ })
+    this.setState({ page: this.state.page + 1 })
     fetch('https://eztv.ag/page_' + this.state.page)
       .then(resp => resp.text())
       .then(body => {
@@ -42,16 +45,16 @@ class Ez extends Component {
     return (
       <div>
         {this.state.loading && <div>loading</div>}
-        <ul id="authors" style={{ listStyleType: 'none', textAlign: 'left' }}>
+        <div>
           {this.state.shows.map((x, i) => (
-            <li key={i}>
+            <div key={i}>
               <a href={x.magnet}>
-                <img src="https://eztv.ag/images/magnet-icon-5.png" />
+                <img alt="m" src="https://eztv.ag/images/magnet-icon-5.png" />
               </a>
               {x.name}
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
         <button onClick={() => this.more()}>more</button>
       </div>
     )

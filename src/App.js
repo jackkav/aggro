@@ -2,11 +2,11 @@ import React, { Component } from 'react'
 import logo from './logo.svg'
 import './App.css'
 import { Pb } from './Pb'
+import { Ez } from './Ez'
 const SimpleLayout = () => (
   <div className="App">
     <div className="App-header">
-      <img src={logo} className="App-logo" alt="logo" />
-      <h2>Title</h2>
+      <h2>Welcome</h2>
     </div>
     <div className="flex-container">
       <div className="flex-item">
@@ -15,7 +15,9 @@ const SimpleLayout = () => (
         </div>
       </div>
       <div className="flex-item">
-        <div className="flex-content" />
+        <div className="flex-content">
+          <Ez />
+        </div>
       </div>
     </div>
   </div>

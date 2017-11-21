@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import cheerio from 'cheerio'
-
+// import moment from 'moment'
 export class Pb extends Component {
   state = {
     shows: [],
@@ -10,11 +10,15 @@ export class Pb extends Component {
   componentDidMount() {
     //TODO: invalidate cache after one hour
     if (localStorage.getItem('aggro.pb.all')) {
-      console.log(
-        'loading cached scrape',
-        new Date().toISOString(),
-        localStorage.getItem('aggro.updated'),
-      )
+      // console.log(
+      //   'loading cached scrape',
+      //   new Date().toISOString(),
+      //   localStorage.getItem('aggro.updated').slice(0, 10),
+      //   moment().isAfter(
+      //     moment(localStorage.getItem('aggro.updated')),
+      //     'minute',
+      //   ),
+      // )
       this.setState({ shows: JSON.parse(localStorage.getItem('aggro.pb.all')) })
     } else {
       localStorage.setItem('aggro.updated', JSON.stringify(new Date()))
@@ -44,17 +48,17 @@ export class Pb extends Component {
     return (
       <div>
         {this.state.loading && <div>loading</div>}
-        <ul id="authors" style={{ listStyleType: 'none', textAlign: 'left' }}>
+        <div>
           {this.state.shows.map((x, i) => (
-            <li key={i}>
+            <div key={i}>
               <a href={x.magnet}>
                 <img alt="m" src="https://eztv.ag/images/magnet-icon-5.png" />
               </a>
               {/* <Youtubelink fullname={x.name} /> */}
               {x.name}
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     )
   }
@@ -80,7 +84,7 @@ class Youtubelink extends Component {
       })
     return (
       <a href={this.state.watch}>
-        <img src={this.state.icon} style={{ height: 16, width: 16 }} />
+        <img alt="yt" src={this.state.icon} style={{ height: 16, width: 16 }} />
       </a>
     )
   }
