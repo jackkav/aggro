@@ -1,45 +1,7 @@
 import React, { Component } from 'react'
 import cheerio from 'cheerio'
-import styled from 'styled-components'
 
-class App extends Component {
-  render() {
-    return (
-      <Root>
-        {/* <Column>
-          <Heading>desc</Heading>123123123123123
-        </Column>
-        <Column>
-          <Heading>desc</Heading>
-          <Pb />
-        </Column>
-        <Column>
-          <Heading>desc</Heading>
-          <Ez />
-        </Column> */}
-        <Pb />
-      </Root>
-    )
-  }
-}
-const Root = styled.div`
-  display: flex;
-  flex: 1;
-`
-const Column = styled.div`
-  flex: 1;
-  background-color: #444;
-  color: #fff;
-  padding: 20;
-`
-const Heading = styled.div`
-  flex: 1;
-  background-color: #444;
-  color: #fff;
-  padding: 20;
-`
-export default App
-class Pb extends Component {
+export class Pb extends Component {
   state = {
     shows: [],
     page: 0,
@@ -47,14 +9,18 @@ class Pb extends Component {
   }
   componentDidMount() {
     //TODO: invalidate cache after one hour
-    if (localStorage.getItem('aggro.pb')) {
-      console.log('loading cached scrape')
-      this.setState({ shows: JSON.parse(localStorage.getItem('aggro.pb')) })
+    if (localStorage.getItem('aggro.pb.all')) {
+      console.log(
+        'loading cached scrape',
+        new Date().toISOString(),
+        localStorage.getItem('aggro.updated'),
+      )
+      this.setState({ shows: JSON.parse(localStorage.getItem('aggro.pb.all')) })
     } else {
       localStorage.setItem('aggro.updated', JSON.stringify(new Date()))
       console.log('loading fresh scrape')
       this.setState({ loading: true })
-      fetch('https://cors-anywhere.herokuapp.com/thepiratebay.org/top/205')
+      fetch('https://cors-anywhere.herokuapp.com/thepiratebay.org/top/all')
         .then(resp => resp.text())
         .then(body => {
           const $ = cheerio.load(body)
@@ -67,7 +33,7 @@ class Pb extends Component {
             // this.setState({ shows: [{ name, magnet }] })
             this.setState({ loading: false })
           })
-          localStorage.setItem('aggro.pb', JSON.stringify(this.state.shows))
+          localStorage.setItem('aggro.pb.all', JSON.stringify(this.state.shows))
         })
         .catch(function(error) {
           console.log(JSON.stringify(error))
@@ -82,9 +48,9 @@ class Pb extends Component {
           {this.state.shows.map((x, i) => (
             <li key={i}>
               <a href={x.magnet}>
-                <img src="https://eztv.ag/images/magnet-icon-5.png" />
+                <img alt="m" src="https://eztv.ag/images/magnet-icon-5.png" />
               </a>
-              <Youtubelink fullname={x.name} />
+              {/* <Youtubelink fullname={x.name} /> */}
               {x.name}
             </li>
           ))}
