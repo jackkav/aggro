@@ -8,10 +8,10 @@ export class Ez extends Component {
   }
   componentDidMount() {
     this.setState({ loading: true })
-    fetch('https://eztv.ag')
+    fetch('https://cors-anywhere.herokuapp.com/https://eztv.ag')
       .then(resp => resp.text())
       .then(body => {
-        console.log(body)
+        // console.log(body)y build
         const $ = cheerio.load(body)
         $('.magnet').each((a, item) => {
           const name = item.attribs.title
@@ -27,7 +27,10 @@ export class Ez extends Component {
   }
   more = () => {
     this.setState({ page: this.state.page + 1 })
-    fetch('https://eztv.ag/page_' + this.state.page)
+    fetch(
+      'https://cors-anywhere.herokuapp.com/https://eztv.ag/page_' +
+        this.state.page,
+    )
       .then(resp => resp.text())
       .then(body => {
         const $ = cheerio.load(body)

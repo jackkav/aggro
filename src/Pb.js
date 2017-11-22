@@ -1,6 +1,19 @@
 import React, { Component } from 'react'
 import cheerio from 'cheerio'
-// import moment from 'moment'
+import moment from 'moment'
+const isExpired = key => {
+  const expire = localStorage.getItem(key)
+  console.log(key + 'has Expired', moment().isAfter(expire))
+  return moment().isAfter(expire)
+}
+const setExpiry = key => {
+  localStorage.setItem(
+    key,
+    moment()
+      .add(1, 'hour')
+      .format(),
+  )
+}
 export class Pb extends Component {
   state = {
     shows: [],
@@ -9,40 +22,38 @@ export class Pb extends Component {
   }
   componentDidMount() {
     //TODO: invalidate cache after one hour
-    if (localStorage.getItem('aggro.pb.all')) {
-      // console.log(
-      //   'loading cached scrape',
-      //   new Date().toISOString(),
-      //   localStorage.getItem('aggro.updated').slice(0, 10),
-      //   moment().isAfter(
-      //     moment(localStorage.getItem('aggro.updated')),
-      //     'minute',
-      //   ),
-      // )
-      this.setState({ shows: JSON.parse(localStorage.getItem('aggro.pb.all')) })
-    } else {
-      localStorage.setItem('aggro.updated', JSON.stringify(new Date()))
-      console.log('loading fresh scrape')
-      this.setState({ loading: true })
-      fetch('https://cors-anywhere.herokuapp.com/thepiratebay.org/top/all')
-        .then(resp => resp.text())
-        .then(body => {
-          const $ = cheerio.load(body)
-          $('a[title="Download this torrent using magnet"]').each((a, item) => {
-            const magnet = item.attribs.href
-            const name = $(item)
-              .parent()
-              .text()
-            this.setState({ shows: [...this.state.shows, { name, magnet }] })
-            // this.setState({ shows: [{ name, magnet }] })
-            this.setState({ loading: false })
-          })
+
+    if (
+      !isExpired('aggro.pb.all.lastScrape') &&
+      localStorage.getItem('aggro.pb.all')
+    )
+      console.log('loading cached scrape')
+    // this.setState({ shows: JSON.parse(localStorage.getItem('aggro.pb.all')) })
+    return
+
+    setExpiry('aggro.pb.all.lastScrape')
+    console.log('loading fresh scrape')
+    this.setState({ loading: true })
+    fetch('https://cors-anywhere.herokuapp.com/thepiratebay.org/top/all')
+      .then(resp => resp.text())
+      .then(body => {
+        const $ = cheerio.load(body)
+        $('a[title="Download this torrent using magnet"]').each((a, item) => {
+          const magnet = item.attribs.href
+          const name = $(item)
+            .parent()
+            .text()
+          this.setState({ shows: [...this.state.shows, { name, magnet }] })
+          // this.setState({ shows: [{ name, magnet }] })
+        })
+        if (this.state.shows.length) {
+          this.setState({ loading: false })
           localStorage.setItem('aggro.pb.all', JSON.stringify(this.state.shows))
-        })
-        .catch(function(error) {
-          console.log(JSON.stringify(error))
-        })
-    }
+        }
+      })
+      .catch(function(error) {
+        console.log(JSON.stringify(error))
+      })
   }
   render() {
     return (
