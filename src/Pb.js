@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import cheerio from 'cheerio'
 import { isExpired, setExpiry } from './utils'
+import { Nov21PbAll } from './test'
 export class Pb extends Component {
   state = {
     shows: [],
@@ -28,7 +29,9 @@ export class Pb extends Component {
           const name = $(item)
             .parent()
             .text()
-          this.setState({ shows: [...this.state.shows, { name, magnet }] })
+          const newItem = { name, magnet }
+          // if()
+          this.setState({ shows: [...this.state.shows, newItem] })
           // this.setState({ shows: [{ name, magnet }] })
         })
         if (this.state.shows.length) {
@@ -41,24 +44,36 @@ export class Pb extends Component {
       })
   }
   render() {
+    if (this.state.loading) return <div>loading</div>
+    const magnetId = Nov21PbAll.map(
+      x => x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
+    )
     return (
       <div>
-        {this.state.loading && <div>loading</div>}
-        <div>
-          {this.state.shows.map((x, i) => (
-            <div key={i}>
-              <a href={x.magnet}>
-                <img alt="m" src="https://eztv.ag/images/magnet-icon-5.png" />
-              </a>
-              {/* <Youtubelink fullname={x.name} /> */}
-              {x.name}
-            </div>
-          ))}
-        </div>
+        {this.state.shows.map((x, i) => (
+          <div
+            key={i}
+            style={{
+              color: magnetId.includes(
+                x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
+              )
+                ? 'gray'
+                : 'white',
+            }}
+          >
+            <a href={x.magnet}>
+              <img alt="m" src="https://eztv.ag/images/magnet-icon-5.png" />
+            </a>
+            {i + 1})
+            {/* <Youtubelink fullname={x.name} /> */}
+            {x.name}
+          </div>
+        ))}
       </div>
     )
   }
 }
+
 class Youtubelink extends Component {
   state = {
     icon: 'https://i.ytimg.com/vi/ue80QwXMRHg/default.jpg',
