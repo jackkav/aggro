@@ -9,8 +9,7 @@ export class Pb extends Component {
     loading: false,
   }
   componentDidMount() {
-    //TODO: invalidate cache after one hour
-    const scrapeKey = 'aggro.pb.all'
+    const scrapeKey = 'aggro.pb.201'
     if (!isExpired(scrapeKey)) {
       console.log('loading cached pb scrape')
       this.setState({ shows: JSON.parse(localStorage.getItem(scrapeKey)) })
@@ -20,7 +19,7 @@ export class Pb extends Component {
     console.log('loading fresh pb scrape')
     this.setState({ loading: true })
 
-    fetch('https://cors-anywhere.herokuapp.com/thepiratebay.rocks/top/all')
+    fetch('https://cors-anywhere.herokuapp.com/thepiratebay.rocks/top/201')
       .then(resp => resp.text())
       .then(body => {
         const $ = cheerio.load(body)
@@ -29,10 +28,9 @@ export class Pb extends Component {
           const name = $(item)
             .parent()
             .text()
-          const newItem = { name, magnet }
+          const newItem = { name: pbParse(name).title, magnet }
           // if()
           this.setState({ shows: [...this.state.shows, newItem] })
-          // this.setState({ shows: [{ name, magnet }] })
         })
         if (this.state.shows.length) {
           this.setState({ loading: false })
@@ -64,8 +62,8 @@ export class Pb extends Component {
             <a href={x.magnet}>
               <img alt="m" src="https://eztv.ag/images/magnet-icon-5.png" />
             </a>
+            <Youtubelink fullname={x.name} />
             {i + 1})
-            {/* <Youtubelink fullname={x.name} /> */}
             {x.name}
           </div>
         ))}
@@ -76,25 +74,30 @@ export class Pb extends Component {
 
 class Youtubelink extends Component {
   state = {
-    icon: 'https://i.ytimg.com/vi/ue80QwXMRHg/default.jpg',
+    icon: '',
   }
   render() {
-    // console.log('123', pbParse(fullname).title)
     const { fullname } = this.props
-    const title = pbParse(fullname).title
-    if (!title) return null
-    const url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyBjnMTlF9ou968qeDBc6LQpN860jJ0Juj0&q=${title}&part=snippet`
-    fetch(url)
-      .then(x => x.json())
-      .then(json => {
-        const first = json.items[0]
-        this.setState({
-          icon: first.snippet.thumbnails.default.url,
-          watch: `https://www.youtube.com/watch?v=${first.id.videoId}`,
-        })
-      })
+    const { name, year, title } = pbParse(fullname)
+    const searchTerm = name + ' ' + year
+    // console.log(title)
+    if (!searchTerm) return null
+    const url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyBjnMTlF9ou968qeDBc6LQpN860jJ0Juj0&q=${searchTerm}&part=snippet`
+    // fetch(url)
+    //   .then(x => x.json())
+    //   .then(json => {
+    //     const first = json.items[0]
+    //     console.log(url, first)
+    //     this.setState({
+    //       icon: first.snippet.thumbnails.default.url,
+    //       watch: `https://www.youtube.com/watch?v=${first.id.videoId}`,
+    //     })
+    //   })
+    //   .catch(function(error) {
+    //     console.log('error', JSON.stringify(error.message))
+    //   })
     return (
-      <a href={this.state.watch}>
+      <a target="blank" href={this.state.watch}>
         <img alt="yt" src={this.state.icon} style={{ height: 16, width: 16 }} />
       </a>
     )
@@ -103,8 +106,6 @@ class Youtubelink extends Component {
 
 export const pbParse = input => {
   if (!input) return false
-  if (input.includes('Season') && input.includes('Complete')) return false
-  if (!input.includes('[ettv]')) return false
   if (
     input.match(/(Home And Away)|(Judge Judy)|(Coronation Street)|(Emmerdale)/)
   )
@@ -123,16 +124,21 @@ export const pbParse = input => {
       .replace('MiB', 'MB')
       .replace('GiB', 'GB')
   const quality = q ? q.toString() : 'HDTV'
+  const year = input.match(/2015/) || input.match(/2016/) || input.match(/2017/)
+  const yearIndex = input.indexOf(year)
   const episodeIndex = input.indexOf(episode)
   const uploadedIndex = input.indexOf('Uploaded')
-  const endOfTitleIndex = episodeIndex
-  const title = input
-    .slice(0, endOfTitleIndex - 1)
-    .replace(/\./g, ' ')
-    .replace(/\n/g, '')
-    .replace(/\t/g, '')
+  const endOfTitleIndex = uploadedIndex
+  const title =
+    input
+      .slice(0, endOfTitleIndex - 1)
+      .replace(/\./g, ' ')
+      .replace(/\n/g, '')
+      .replace(/\t/g, '') +
+    ' ' +
+    size
   const name = input
-    .slice(0, uploadedIndex - 1)
+    .slice(0, yearIndex - 1)
     .replace(/\./g, ' ')
     .replace(/\n/g, '')
     .replace(/\t/g, '')
@@ -142,6 +148,6 @@ export const pbParse = input => {
     size,
     title,
     name,
-    uploader: 'ettv',
+    year,
   }
 }

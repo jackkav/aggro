@@ -13,5 +13,23 @@ export const setExpiry = (key, value) => {
       .add(1, 'hour')
       .format(),
   )
+  localStorage.setItem(
+    key + '.lastScrapeData',
+    JSON.stringify(
+      value.map(
+        x => x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
+      ),
+    ),
+  )
   localStorage.setItem(key, JSON.stringify(value))
+}
+export const setSeenMagnetIds = (key, value) => {
+  localStorage.setItem(
+    key + '.seenScrapeData',
+    JSON.stringify(
+      value.map(
+        x => x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
+      ),
+    ),
+  )
 }
