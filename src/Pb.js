@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import cheerio from 'cheerio'
+import moment from 'moment'
 import { isExpired, setExpiry } from './utils'
 import { Nov21PbAll } from './test'
 import { pbParse } from './parsers'
@@ -30,8 +31,8 @@ export class Pb extends Component {
             .parent()
             .text()
           const { title, uploadedAt } = pbParse(name)
-          console.log(uploadedAt, name)
-          const newItem = { name: title, magnet }
+          console.log(uploadedAt)
+          const newItem = { name: title, magnet, uploadedAt }
           // if()
           this.setState({ shows: [...this.state.shows, newItem] })
         })
@@ -51,25 +52,28 @@ export class Pb extends Component {
     )
     return (
       <div>
-        {this.state.shows.map((x, i) => (
-          <div
-            key={i}
-            style={{
-              color: magnetId.includes(
-                x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
-              )
-                ? 'gray'
-                : 'white',
-            }}
-          >
-            <a href={x.magnet}>
-              <img alt="m" src="https://eztv.ag/images/magnet-icon-5.png" />
-            </a>
-            <Youtubelink fullname={x.name} />
-            {i + 1})
-            {x.name}
-          </div>
-        ))}
+        {this.state.shows.map((x, i) => {
+          const recentRelease = moment(
+            moment().format('YYYY') + '-' + x.uploadedAt,
+            'YYYY-MM-DD HH:SS',
+          )
+            .fromNow()
+            .includes('days')
+
+          return (
+            <div key={i} style={{ color: recentRelease ? 'black' : 'gray' }}>
+              <a href={x.magnet}>
+                <img alt="m" src="https://eztv.ag/images/magnet-icon-5.png" />
+              </a>
+              {/* <Youtubelink fullname={x.name} /> */}
+              {/* {!magnetId.includes(
+              x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
+            ) && '*'} */}
+              {i + 1})
+              {x.name}
+            </div>
+          )
+        })}
       </div>
     )
   }
