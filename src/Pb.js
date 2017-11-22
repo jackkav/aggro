@@ -1,19 +1,6 @@
 import React, { Component } from 'react'
 import cheerio from 'cheerio'
-import moment from 'moment'
-const isExpired = key => {
-  const expire = localStorage.getItem(key)
-  console.log(key + 'has Expired', moment().isAfter(expire))
-  return moment().isAfter(expire)
-}
-const setExpiry = key => {
-  localStorage.setItem(
-    key,
-    moment()
-      .add(1, 'hour')
-      .format(),
-  )
-}
+import { isExpired, setExpiry } from './utils'
 export class Pb extends Component {
   state = {
     shows: [],
@@ -22,19 +9,17 @@ export class Pb extends Component {
   }
   componentDidMount() {
     //TODO: invalidate cache after one hour
+    const scrapeKey = 'aggro.pb.all'
+    if (!isExpired(scrapeKey)) {
+      console.log('loading cached pb scrape')
+      this.setState({ shows: JSON.parse(localStorage.getItem(scrapeKey)) })
+      return
+    }
 
-    if (
-      !isExpired('aggro.pb.all.lastScrape') &&
-      localStorage.getItem('aggro.pb.all')
-    )
-      console.log('loading cached scrape')
-    // this.setState({ shows: JSON.parse(localStorage.getItem('aggro.pb.all')) })
-    return
-
-    setExpiry('aggro.pb.all.lastScrape')
-    console.log('loading fresh scrape')
+    console.log('loading fresh pb scrape')
     this.setState({ loading: true })
-    fetch('https://cors-anywhere.herokuapp.com/thepiratebay.org/top/all')
+
+    fetch('https://cors-anywhere.herokuapp.com/thepiratebay.rocks/top/all')
       .then(resp => resp.text())
       .then(body => {
         const $ = cheerio.load(body)
@@ -48,7 +33,7 @@ export class Pb extends Component {
         })
         if (this.state.shows.length) {
           this.setState({ loading: false })
-          localStorage.setItem('aggro.pb.all', JSON.stringify(this.state.shows))
+          setExpiry(scrapeKey, this.state.shows)
         }
       })
       .catch(function(error) {
