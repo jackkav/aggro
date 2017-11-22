@@ -4,13 +4,20 @@ import moment from 'moment'
 import { isExpired, setExpiry } from './utils'
 import { Nov21PbAll } from './test'
 import { pbParse } from './parsers'
+
+const fetchAsync4 = async () =>
+  await (await fetch('https://www.baidu.com')).text()
+
 export class Pb extends Component {
   state = {
     shows: [],
     page: 0,
     loading: false,
+    error: '',
   }
-  componentDidMount() {
+  async componentDidMount() {
+    // console.log('x', data)
+    // this.setState({ data })
     const scrapeKey = 'aggro.pb.201'
     if (!isExpired(scrapeKey)) {
       console.log('loading cached pb scrape')
@@ -20,30 +27,33 @@ export class Pb extends Component {
 
     console.log('loading fresh pb scrape')
     this.setState({ loading: true })
-
-    fetch('https://cors-anywhere.herokuapp.com/thepiratebay.rocks/top/201')
-      .then(resp => resp.text())
-      .then(body => {
-        const $ = cheerio.load(body)
-        $('a[title="Download this torrent using magnet"]').each((a, item) => {
-          const magnet = item.attribs.href
-          const name = $(item)
-            .parent()
-            .text()
-          const { title, uploadedAt } = pbParse(name)
-          console.log(uploadedAt)
-          const newItem = { name: title, magnet, uploadedAt }
-          // if()
-          this.setState({ shows: [...this.state.shows, newItem] })
-        })
-        if (this.state.shows.length) {
-          this.setState({ loading: false })
-          setExpiry(scrapeKey, this.state.shows)
-        }
+    const f = await fetch(
+      'https://cors-anywhere.herokuapp.com/thepiratebay.rocks/top/201',
+    )
+    if (!f.ok) {
+      this.setState({
+        error: 'broken link',
+        loading: false,
       })
-      .catch(function(error) {
-        console.log(JSON.stringify(error))
-      })
+      return
+    }
+    const body = await f.text()
+    const $ = cheerio.load(body)
+    $('a[title="Download this torrent using magnet"]').each((a, item) => {
+      const magnet = item.attribs.href
+      const name = $(item)
+        .parent()
+        .text()
+      const { title, uploadedAt } = pbParse(name)
+      console.log(uploadedAt)
+      const newItem = { name: title, magnet, uploadedAt }
+      // if()
+      this.setState({ shows: [...this.state.shows, newItem] })
+    })
+    if (this.state.shows.length) {
+      this.setState({ loading: false })
+      setExpiry(scrapeKey, this.state.shows)
+    }
   }
   render() {
     if (this.state.loading) return <div>loading</div>
@@ -52,6 +62,7 @@ export class Pb extends Component {
     )
     return (
       <div>
+        {this.state.error}
         {this.state.shows.map((x, i) => {
           const recentRelease = moment(
             moment().format('YYYY') + '-' + x.uploadedAt,
