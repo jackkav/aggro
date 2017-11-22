@@ -5,9 +5,6 @@ import { isExpired, setExpiry } from './utils'
 import { Nov21PbAll } from './test'
 import { pbParse } from './parsers'
 
-const fetchAsync4 = async () =>
-  await (await fetch('https://www.baidu.com')).text()
-
 export class Pb extends Component {
   state = {
     shows: [],
@@ -16,8 +13,6 @@ export class Pb extends Component {
     error: '',
   }
   async componentDidMount() {
-    // console.log('x', data)
-    // this.setState({ data })
     const scrapeKey = 'aggro.pb.201'
     if (!isExpired(scrapeKey)) {
       console.log('loading cached pb scrape')
