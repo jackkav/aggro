@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import cheerio from 'cheerio'
 import moment from 'moment'
+import styled from 'styled-components'
 import { isExpired, setExpiry } from './utils'
 import { Nov21PbAll } from './test'
 import { pbParse } from './parsers'
@@ -39,9 +40,9 @@ export class Pb extends Component {
       const name = $(item)
         .parent()
         .text()
-      const { title, uploadedAt } = pbParse(name)
+      const { title, uploadedAt, size } = pbParse(name)
       console.log(uploadedAt)
-      const newItem = { name: title, magnet, uploadedAt }
+      const newItem = { name: title, magnet, uploadedAt, size }
       // if()
       this.setState({ shows: [...this.state.shows, newItem] })
     })
@@ -66,36 +67,109 @@ export class Pb extends Component {
             .fromNow()
             .includes('days')
 
-          return (
-            <div key={i} style={{ color: recentRelease ? 'black' : 'gray' }}>
-              <a href={x.magnet}>
-                <img alt="m" src="https://eztv.ag/images/magnet-icon-5.png" />
-              </a>
-              {/* <Youtubelink fullname={x.name} /> */}
-              {/* {!magnetId.includes(
-              x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
-            ) && '*'} */}
-              {i + 1})
-              {x.name}
-            </div>
-          )
+          return <OneRow x={x} i={i} />
         })}
       </div>
     )
   }
 }
+const OneRow = ({ x, i }) => (
+  <Row key={i} i={i}>
+    <StandingView>
+      <StandingChange>></StandingChange>
+      <StandingWrapper>
+        <StandingPosition>{i + 1}</StandingPosition>
+        <LastVisitStandingPosition>
+          last visit#{i + 1}
+        </LastVisitStandingPosition>
+      </StandingWrapper>
 
+      <MediaLinks>
+        <a href={x.magnet}>
+          <img alt="m" src="https://eztv.ag/images/magnet-icon-5.png" />
+        </a>
+      </MediaLinks>
+    </StandingView>
+    <MediaView>
+      <TitleView>{x.name}</TitleView>
+      <MetadataView>{x.size}</MetadataView>
+    </MediaView>
+
+    {/* <Youtubelink fullname={x.name} /> */}
+    {/* {!magnetId.includes(
+x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
+) && '*'} */}
+  </Row>
+)
+const Row = styled.div`
+  display: flex;
+  flex: 1;
+  background: ${p => (p.i % 2 ? 'white' : 'lightgray')};
+  height: 50px;
+  padding: 2px;
+`
+const StandingChange = styled.div`
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  background: black;
+  color: white;
+`
+const StandingWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 4;
+`
+const StandingPosition = styled.div`
+  flex: 2;
+  font-size: 1.5rem;
+`
+const LastVisitStandingPosition = styled.div`
+  flex: 4;
+  color: gray;
+`
+
+const MediaLinks = styled.div`
+  display: flex;
+  flex: 4;
+  align-items: center;
+  justify-content: center;
+`
+const StandingView = styled.div`
+  display: flex;
+  text-align: center;
+  flex: 1;
+`
+const MediaView = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 3;
+`
+
+const TitleView = styled.div`
+  display: flex;
+  flex: 2;
+  align-items: center;
+`
+const MetadataView = styled.div`
+  flex: 1;
+  color: gray;
+`
 class Youtubelink extends Component {
   state = {
     icon: '',
   }
+  onHover() {}
   render() {
     const { fullname } = this.props
     const { name, year, title, uploadedAt } = pbParse(fullname)
     const searchTerm = name + ' ' + year
     // console.log(name, uploadedAt)
     if (!searchTerm) return null
-    const url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyBjnMTlF9ou968qeDBc6LQpN860jJ0Juj0&q=${searchTerm}&part=snippet`
+    const url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyBjnMTlF9ou968qeDBc6LQpN860jJ0Juj0&q=${
+      searchTerm
+    }&part=snippet`
     // fetch(url)
     //   .then(x => x.json())
     //   .then(json => {

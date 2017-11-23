@@ -28,14 +28,11 @@ export const pbParse = input => {
   const uploadedIndex = input.indexOf('Uploaded')
   const sizeIndex = input.indexOf(' Size')
   const endOfTitleIndex = uploadedIndex
-  const title =
-    input
-      .slice(0, endOfTitleIndex - 1)
-      .replace(/\./g, ' ')
-      .replace(/\n/g, '')
-      .replace(/\t/g, '') +
-    ' ' +
-    size
+  const title = input
+    .slice(0, endOfTitleIndex - 1)
+    .replace(/\./g, ' ')
+    .replace(/\n/g, '')
+    .replace(/\t/g, '')
   const name = input
     .slice(0, yearIndex - 1)
     .replace(/\./g, ' ')
