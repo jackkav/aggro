@@ -40,9 +40,10 @@ export class Pb extends Component {
       const name = $(item)
         .parent()
         .text()
+      const id = magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0]
       const { title, uploadedAt, size } = pbParse(name)
       console.log(uploadedAt)
-      const newItem = { name: title, magnet, uploadedAt, size }
+      const newItem = { id, name: title, magnet, uploadedAt, size }
       this.setState({ shows: [...this.state.shows, newItem] })
     })
     if (this.state.shows.length) {
@@ -103,7 +104,7 @@ const getUsefulLastVisit = () => {
   //if not use local
 }
 const OneRow = ({ x, i, last, timeSinceRelease }) => (
-  <Row key={i} i={i}>
+  <Row key={x.magnet} i={i}>
     <StandingView>
       <StandingChange color={getStandingChangeColor(last, i + 1)}>
         {getStandingChange(last, i + 1)}
@@ -111,7 +112,7 @@ const OneRow = ({ x, i, last, timeSinceRelease }) => (
       <StandingWrapper>
         <StandingPosition>{i + 1}</StandingPosition>
         <LastVisitStandingPosition>
-          {last ? 'last visit #' + last : 'new'}
+          {last ? 'last #' + last : 'new'}
         </LastVisitStandingPosition>
       </StandingWrapper>
 
@@ -165,7 +166,7 @@ const LastVisitStandingPosition = styled.div`
 
 const MediaLinks = styled.div`
   display: flex;
-  flex: 4;
+  flex: 2;
   align-items: center;
   justify-content: center;
 `
