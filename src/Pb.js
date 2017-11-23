@@ -76,8 +76,9 @@ export class Pb extends Component {
   }
 }
 const getLastVisitPostion = magnet => {
-  const lastVisitIds = Nov21PbAll
-  // JSON.parse(localStorage.getItem('aggro.pb.201.lastScrapeData')) || []
+  const lastVisitIds =
+    JSON.parse(localStorage.getItem('aggro.pb.201.lastScrapeData')) ||
+    Nov21PbAll
   return (
     lastVisitIds.findIndex(
       y => y === magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
@@ -136,9 +137,9 @@ x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
 const Row = styled.div`
   display: flex;
   flex: 1;
-  background: ${p => (p.i % 2 ? 'white' : 'lightgray')};
+  background: ${p => (p.i % 2 ? 'white' : 'rgba(0,0,0,0.15)')};
   height: 50px;
-  padding: 2px;
+  padding-bottom: 2px;
 `
 const StandingChange = styled.div`
   display: flex;
