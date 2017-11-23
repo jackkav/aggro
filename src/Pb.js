@@ -75,15 +75,26 @@ export class Pb extends Component {
     )
   }
 }
-const getLastVisitPostion = magnet =>
-  Nov21PbAll.findIndex(
-    y => y === magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
-  ) + 1
+const getLastVisitPostion = magnet => {
+  const lastVisitIds = Nov21PbAll
+  // JSON.parse(localStorage.getItem('aggro.pb.201.lastScrapeData')) || []
+  return (
+    lastVisitIds.findIndex(
+      y => y === magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
+    ) + 1
+  )
+}
 const getStandingChange = (prev, current) => {
   if (!prev) return '•'
   if (current < prev) return '⬆︎'
   if (current > prev) return '⬇︎'
   return '•'
+}
+const getStandingChangeColor = (prev, current) => {
+  if (!prev) return 'white'
+  if (current < prev) return 'green'
+  if (current > prev) return 'red'
+  return 'white'
 }
 const getUsefulLastVisit = () => {
   //if last visit was over a day use local storage
@@ -93,7 +104,9 @@ const getUsefulLastVisit = () => {
 const OneRow = ({ x, i, last, timeSinceRelease }) => (
   <Row key={i} i={i}>
     <StandingView>
-      <StandingChange>{getStandingChange(last, i + 1)}</StandingChange>
+      <StandingChange color={getStandingChangeColor(last, i + 1)}>
+        {getStandingChange(last, i + 1)}
+      </StandingChange>
       <StandingWrapper>
         <StandingPosition>{i + 1}</StandingPosition>
         <LastVisitStandingPosition>
@@ -133,7 +146,7 @@ const StandingChange = styled.div`
   align-items: center;
   justify-content: center;
   background: black;
-  color: white;
+  color: ${p => p.color};
 `
 const StandingWrapper = styled.div`
   display: flex;
