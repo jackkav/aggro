@@ -11,13 +11,13 @@ const SimpleLayout = () => (
     <div className="flex-container">
       <div className="flex-item">
         <div className="flex-content">
-          <div>most popular</div>
+          <div>MOST POPULAR</div>
           <Pb />
         </div>
       </div>
       <div className="flex-item">
         <div className="flex-content">
-          <div>latest</div>
+          <div>LATEST</div>
           <Ez />
         </div>
       </div>

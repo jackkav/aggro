@@ -43,7 +43,6 @@ export class Pb extends Component {
       const { title, uploadedAt, size } = pbParse(name)
       console.log(uploadedAt)
       const newItem = { name: title, magnet, uploadedAt, size }
-      // if()
       this.setState({ shows: [...this.state.shows, newItem] })
     })
     if (this.state.shows.length) {
@@ -53,34 +52,51 @@ export class Pb extends Component {
   }
   render() {
     if (this.state.loading) return <div>loading</div>
-    const magnetId = Nov21PbAll.map(
-      x => x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
-    )
+    const magnetId = Nov21PbAll
     return (
       <div>
         {this.state.error}
         {this.state.shows.map((x, i) => {
-          const recentRelease = moment(
+          const timeSinceRelease = moment(
             moment().format('YYYY') + '-' + x.uploadedAt,
             'YYYY-MM-DD HH:SS',
+          ).fromNow()
+          const last = getLastVisitPostion(x.magnet)
+          return (
+            <OneRow
+              x={x}
+              i={i}
+              last={last}
+              timeSinceRelease={timeSinceRelease}
+            />
           )
-            .fromNow()
-            .includes('days')
-
-          return <OneRow x={x} i={i} />
         })}
       </div>
     )
   }
 }
-const OneRow = ({ x, i }) => (
+const getLastVisitPostion = magnet =>
+  Nov21PbAll.findIndex(
+    y => y === magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
+  ) + 1
+const getStandingChange = (prev, current) => {
+  if (!prev) return '*'
+  if (current < prev) return 'A'
+  if (current > prev) return 'V'
+  return '>'
+}
+const getUsefulLastVisit = () => {
+  //if last visit was over a day use local storage
+  //if not use local
+}
+const OneRow = ({ x, i, last, timeSinceRelease }) => (
   <Row key={i} i={i}>
     <StandingView>
-      <StandingChange>></StandingChange>
+      <StandingChange>{getStandingChange(last, i + 1)}</StandingChange>
       <StandingWrapper>
         <StandingPosition>{i + 1}</StandingPosition>
         <LastVisitStandingPosition>
-          last visit#{i + 1}
+          {last ? 'last visit#' + last : 'new'}
         </LastVisitStandingPosition>
       </StandingWrapper>
 
@@ -92,7 +108,9 @@ const OneRow = ({ x, i }) => (
     </StandingView>
     <MediaView>
       <TitleView>{x.name}</TitleView>
-      <MetadataView>{x.size}</MetadataView>
+      <MetadataView>
+        Released: {timeSinceRelease} Size: {x.size}
+      </MetadataView>
     </MediaView>
 
     {/* <Youtubelink fullname={x.name} /> */}
