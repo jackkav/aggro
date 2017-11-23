@@ -80,13 +80,14 @@ const getLastVisitPostion = magnet =>
     y => y === magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
   ) + 1
 const getStandingChange = (prev, current) => {
-  if (!prev) return '*'
-  if (current < prev) return 'A'
-  if (current > prev) return 'V'
-  return '>'
+  if (!prev) return '•'
+  if (current < prev) return '⬆︎'
+  if (current > prev) return '⬇︎'
+  return '•'
 }
 const getUsefulLastVisit = () => {
   //if last visit was over a day use local storage
+  //maybe create a first visit store?
   //if not use local
 }
 const OneRow = ({ x, i, last, timeSinceRelease }) => (
@@ -96,7 +97,7 @@ const OneRow = ({ x, i, last, timeSinceRelease }) => (
       <StandingWrapper>
         <StandingPosition>{i + 1}</StandingPosition>
         <LastVisitStandingPosition>
-          {last ? 'last visit#' + last : 'new'}
+          {last ? 'last visit #' + last : 'new'}
         </LastVisitStandingPosition>
       </StandingWrapper>
 
@@ -109,7 +110,7 @@ const OneRow = ({ x, i, last, timeSinceRelease }) => (
     <MediaView>
       <TitleView>{x.name}</TitleView>
       <MetadataView>
-        Released: {timeSinceRelease} Size: {x.size}
+        Size: {x.size} Released: {timeSinceRelease}
       </MetadataView>
     </MediaView>
 
