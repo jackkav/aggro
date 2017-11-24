@@ -65,6 +65,7 @@ export class Pb extends Component {
           const last = getLastVisitPostion(x.magnet)
           return (
             <OneRow
+              key={x.magnet}
               x={x}
               i={i}
               last={last}
@@ -78,7 +79,7 @@ export class Pb extends Component {
 }
 const getLastVisitPostion = magnet => {
   const lastVisitIds =
-    JSON.parse(localStorage.getItem('aggro.pb.201.lastScrapeData')) ||
+    // JSON.parse(localStorage.getItem('aggro.pb.201.lastScrapeData')) ||
     Nov21PbAll
   return (
     lastVisitIds.findIndex(
@@ -87,16 +88,13 @@ const getLastVisitPostion = magnet => {
   )
 }
 const getStandingChange = (prev, current) => {
-  if (!prev) return '⭐️'
-  if (current < prev) return '⬆︎'
-  if (current > prev) return '⬇︎'
-  return '•'
-}
-const getStandingChangeColor = (prev, current) => {
-  if (!prev) return 'yellow'
-  if (current < prev) return 'green'
-  if (current > prev) return 'red'
-  return 'white'
+  if (!prev)
+    return 'http://icons.iconarchive.com/icons/custom-icon-design/pretty-office-11/16/new-icon.png'
+  if (current < prev)
+    return 'http://icons.iconarchive.com/icons/visualpharm/must-have/16/Stock-Index-Up-icon.png'
+  if (current > prev)
+    return 'http://icons.iconarchive.com/icons/visualpharm/must-have/16/Stock-Index-Down-icon.png'
+  return ''
 }
 const getUsefulLastVisit = () => {
   //if last visit was over a day use local storage
@@ -109,10 +107,10 @@ const getLastPosition = (prev, current) => {
   return 'last #' + current
 }
 const OneRow = ({ x, i, last, timeSinceRelease }) => (
-  <Row key={x.magnet} i={i}>
+  <Row i={i}>
     <StandingView>
-      <StandingChange color={getStandingChangeColor(last, i + 1)}>
-        {getStandingChange(last, i + 1)}
+      <StandingChange>
+        <img alt="." src={getStandingChange(last, i + 1)} />
       </StandingChange>
       <StandingWrapper>
         <StandingPosition>{i + 1}</StandingPosition>
