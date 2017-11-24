@@ -79,15 +79,15 @@ export class Pb extends Component {
   }
 }
 const getLastVisitPostion = magnet => {
-  const lastScrapeDate = localStorage.getItem('aggro.pb.201.lastScrape')
-  const refreshedToday = moment().isSameOrAfter(lastScrapeDate, 'day')
+  // const lastScrapeDate = localStorage.getItem('aggro.pb.201.lastScrape')
+  // const refreshedToday = moment().isSameOrAfter(lastScrapeDate, 'day')
   //hmm logic too complicated
-  const lastVisitIds = refreshedToday
-    ? JSON.parse(localStorage.getItem('aggro.pb.201.lastScrapeData'))
-    : Nov21PbAll
+  // const lastVisitIds = refreshedToday
+  //   ? JSON.parse(localStorage.getItem('aggro.pb.201.lastScrapeData'))
+  //   : Nov21PbAll
 
   return (
-    lastVisitIds.findIndex(
+    Nov21PbAll.findIndex(
       y => y === magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
     ) + 1
   )
