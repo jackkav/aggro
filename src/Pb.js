@@ -63,11 +63,12 @@ export class Pb extends Component {
             'YYYY-MM-DD HH:SS',
           ).fromNow()
           const last = getLastVisitPostion(x.magnet)
+          const current = i + 1
           return (
             <OneRow
               key={x.magnet}
               x={x}
-              i={i}
+              i={current}
               last={last}
               timeSinceRelease={timeSinceRelease}
             />
@@ -78,9 +79,13 @@ export class Pb extends Component {
   }
 }
 const getLastVisitPostion = magnet => {
-  const lastVisitIds =
-    // JSON.parse(localStorage.getItem('aggro.pb.201.lastScrapeData')) ||
-    Nov21PbAll
+  const lastScrapeDate = localStorage.getItem('aggro.pb.201.lastScrape')
+  const refreshedToday = moment().isSameOrAfter(lastScrapeDate, 'day')
+  //hmm logic too complicated
+  const lastVisitIds = refreshedToday
+    ? JSON.parse(localStorage.getItem('aggro.pb.201.lastScrapeData'))
+    : Nov21PbAll
+
   return (
     lastVisitIds.findIndex(
       y => y === magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
@@ -103,19 +108,19 @@ const getUsefulLastVisit = () => {
 }
 const getLastPosition = (prev, current) => {
   if (!prev) return `new`
-  if (prev === current) return ''
-  return 'last #' + current
+  if (prev === current) return 'no change'
+  return 'prev #' + prev
 }
 const OneRow = ({ x, i, last, timeSinceRelease }) => (
   <Row i={i}>
     <StandingView>
       <StandingChange>
-        <img alt="." src={getStandingChange(last, i + 1)} />
+        <img alt="." src={getStandingChange(last, i)} />
       </StandingChange>
       <StandingWrapper>
-        <StandingPosition>{i + 1}</StandingPosition>
+        <StandingPosition>{i}</StandingPosition>
         <LastVisitStandingPosition>
-          {getLastPosition(last, i + 1)}
+          {getLastPosition(last, i)}
         </LastVisitStandingPosition>
       </StandingWrapper>
 
