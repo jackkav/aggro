@@ -48,7 +48,7 @@ export class Pb extends Component {
     })
     if (this.state.shows.length) {
       this.setState({ loading: false })
-      setExpiry(scrapeKey, this.state.shows)
+      setExpiry(scrapeKey, this.state.shows, 12)
     }
   }
   render() {
@@ -87,13 +87,13 @@ const getLastVisitPostion = magnet => {
   )
 }
 const getStandingChange = (prev, current) => {
-  if (!prev) return '•'
+  if (!prev) return '⭐️'
   if (current < prev) return '⬆︎'
   if (current > prev) return '⬇︎'
   return '•'
 }
 const getStandingChangeColor = (prev, current) => {
-  if (!prev) return 'white'
+  if (!prev) return 'yellow'
   if (current < prev) return 'green'
   if (current > prev) return 'red'
   return 'white'
@@ -102,6 +102,11 @@ const getUsefulLastVisit = () => {
   //if last visit was over a day use local storage
   //maybe create a first visit store?
   //if not use local
+}
+const getLastPosition = (prev, current) => {
+  if (!prev) return `new`
+  if (prev === current) return ''
+  return 'last #' + current
 }
 const OneRow = ({ x, i, last, timeSinceRelease }) => (
   <Row key={x.magnet} i={i}>
@@ -112,7 +117,7 @@ const OneRow = ({ x, i, last, timeSinceRelease }) => (
       <StandingWrapper>
         <StandingPosition>{i + 1}</StandingPosition>
         <LastVisitStandingPosition>
-          {last ? 'last #' + last : 'new'}
+          {getLastPosition(last, i + 1)}
         </LastVisitStandingPosition>
       </StandingWrapper>
 
@@ -125,7 +130,7 @@ const OneRow = ({ x, i, last, timeSinceRelease }) => (
     <MediaView>
       <TitleView>{x.name}</TitleView>
       <MetadataView>
-        Size: {x.size} Released: {timeSinceRelease}
+        Size: {x.size} Released: {x.uploadedAt}
       </MetadataView>
     </MediaView>
 
@@ -154,6 +159,7 @@ const StandingWrapper = styled.div`
   display: flex;
   flex-direction: column;
   flex: 4;
+  min-width: 70;
 `
 const StandingPosition = styled.div`
   flex: 2;
