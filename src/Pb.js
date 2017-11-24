@@ -94,7 +94,7 @@ const getStandingChange = (prev, current) => {
     return 'http://icons.iconarchive.com/icons/visualpharm/must-have/16/Stock-Index-Up-icon.png'
   if (current > prev)
     return 'http://icons.iconarchive.com/icons/visualpharm/must-have/16/Stock-Index-Down-icon.png'
-  return ''
+  return 'http://icons.iconarchive.com/icons/famfamfam/silk/16/resultset-next-icon.png'
 }
 const getUsefulLastVisit = () => {
   //if last visit was over a day use local storage
