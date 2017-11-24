@@ -123,8 +123,12 @@ const OneRow = ({ x, i, last, timeSinceRelease }) => (
 
       <MediaLinks>
         <a href={x.magnet}>
-          <img alt="m" src="https://eztv.ag/images/magnet-icon-5.png" />
+          <img
+            alt="m"
+            src="http://icons.iconarchive.com/icons/emey87/trainee/16/Magnet-icon.png"
+          />
         </a>
+        <Youtubelink fullname={x.name} />
       </MediaLinks>
     </StandingView>
     <MediaView>
@@ -134,7 +138,6 @@ const OneRow = ({ x, i, last, timeSinceRelease }) => (
       </MetadataView>
     </MediaView>
 
-    {/* <Youtubelink fullname={x.name} /> */}
     {/* {!magnetId.includes(
 x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
 ) && '*'} */}
@@ -172,6 +175,7 @@ const LastVisitStandingPosition = styled.div`
 
 const MediaLinks = styled.div`
   display: flex;
+  flex-direction: column;
   flex: 2;
   align-items: center;
   justify-content: center;
@@ -200,33 +204,43 @@ class Youtubelink extends Component {
   state = {
     icon: '',
   }
-  onHover() {}
-  render() {
+  onHover = e => {
+    if (this.state.watch) return
     const { fullname } = this.props
     const { name, year, title, uploadedAt } = pbParse(fullname)
-    const searchTerm = name + ' ' + year
-    // console.log(name, uploadedAt)
+    const searchTerm = name + ' ' + year + ' trailer'
     if (!searchTerm) return null
     const url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyBjnMTlF9ou968qeDBc6LQpN860jJ0Juj0&q=${
       searchTerm
     }&part=snippet`
-    // fetch(url)
-    //   .then(x => x.json())
-    //   .then(json => {
-    //     const first = json.items[0]
-    //     console.log(url, first)
-    //     this.setState({
-    //       icon: first.snippet.thumbnails.default.url,
-    //       watch: `https://www.youtube.com/watch?v=${first.id.videoId}`,
-    //     })
-    //   })
-    //   .catch(function(error) {
-    //     console.log('error', JSON.stringify(error.message))
-    //   })
+    fetch(url)
+      .then(x => x.json())
+      .then(json => {
+        const first = json.items[0]
+        console.log(url, first)
+        this.setState({
+          icon: first.snippet.thumbnails.default.url,
+          watch: `https://www.youtube.com/watch?v=${first.id.videoId}`,
+        })
+      })
+      .catch(function(error) {
+        console.log('error', JSON.stringify(error.message))
+      })
+  }
+  render() {
     return (
-      <a target="blank" href={this.state.watch}>
-        <img alt="yt" src={this.state.icon} style={{ height: 16, width: 16 }} />
-      </a>
+      <div onMouseOver={this.onHover}>
+        <a target="blank" href={this.state.watch}>
+          <img
+            alt="yt"
+            src={
+              this.state.icon ||
+              'http://icons.iconarchive.com/icons/dtafalonso/android-lollipop/72/Youtube-icon.png'
+            }
+            style={{ height: 16, width: 16 }}
+          />
+        </a>
+      </div>
     )
   }
 }
