@@ -167,7 +167,7 @@ class MoreInfo extends Component {
         const $ = cheerio.load(body)
         const summary = $('.nfo pre').text()
         this.setState({ loading: false, summary })
-        console.log(summary)
+        console.log($('#comments .comment').text())
       })
       .catch(function(error) {
         console.log('error', JSON.stringify(error.message))
