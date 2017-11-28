@@ -15,15 +15,16 @@
 
 .flex-container {
   display: flex;
-  flex-flow: row wrap;
+  /* flex-flow: row wrap; */
+  flex-flow: column;
 }
 .flex-item {
   flex: 1;
   background: white;
-  min-width: 400px;
   min-height: 300px;
   margin: 10px;
 }
+
 .flex-content {
   /* line-height: 150px; */
   color: black;
