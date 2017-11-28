@@ -40,10 +40,14 @@ export class Pb extends Component {
       const name = $(item)
         .parent()
         .text()
+
+      const url = $(item)
+        .parent()
+        .find('.detName a')[0].attribs.href
       const id = magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0]
       const { title, uploadedAt, size } = pbParse(name)
-      console.log(uploadedAt)
-      const newItem = { id, name: title, magnet, uploadedAt, size }
+      console.log('url', url)
+      const newItem = { id, name: title, magnet, uploadedAt, size, url }
       this.setState({ shows: [...this.state.shows, newItem] })
     })
     if (this.state.shows.length) {
@@ -125,12 +129,6 @@ const OneRow = ({ x, i, last, timeSinceRelease }) => (
       </StandingWrapper>
 
       <MediaLinks>
-        <a href={x.magnet}>
-          <img
-            alt="m"
-            src="http://icons.iconarchive.com/icons/emey87/trainee/16/Magnet-icon.png"
-          />
-        </a>
         <Youtubelink fullname={x.name} />
       </MediaLinks>
     </StandingView>
@@ -138,6 +136,13 @@ const OneRow = ({ x, i, last, timeSinceRelease }) => (
       <TitleView>{x.name}</TitleView>
       <MetadataView>
         Size: {x.size} Released: {x.uploadedAt}
+        <a href={x.magnet}>
+          <img
+            alt="m"
+            src="http://icons.iconarchive.com/icons/emey87/trainee/16/Magnet-icon.png"
+          />
+        </a>
+        <MoreInfo url={x.url} />
       </MetadataView>
     </MediaView>
 
@@ -146,6 +151,37 @@ x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
 ) && '*'} */}
   </Row>
 )
+class MoreInfo extends Component {
+  state = {
+    summary: '',
+    loading: false,
+  }
+  onHover = () => {
+    const url = 'https://cors-anywhere.herokuapp.com/' + this.props.url
+
+    console.log('event', url)
+    this.setState({ loading: true })
+    fetch(url)
+      .then(x => x.text())
+      .then(body => {
+        const $ = cheerio.load(body)
+        const summary = $('.nfo pre').text()
+        this.setState({ loading: false, summary })
+        console.log($('#comments .comment').text())
+      })
+      .catch(function(error) {
+        console.log('error', JSON.stringify(error.message))
+      })
+  }
+  render() {
+    const a = 5
+    return (
+      <span onMouseOver={this.onHover}>
+        {this.state.loading ? 'loading' : 'summary'}
+      </span>
+    )
+  }
+}
 const Row = styled.div`
   display: flex;
   flex: 1;
@@ -206,6 +242,7 @@ const MetadataView = styled.div`
 class Youtubelink extends Component {
   state = {
     icon: '',
+    loading: false,
   }
   onHover = e => {
     if (this.state.watch) return
@@ -216,6 +253,7 @@ class Youtubelink extends Component {
     const url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyBjnMTlF9ou968qeDBc6LQpN860jJ0Juj0&q=${
       searchTerm
     }&part=snippet`
+    this.setState({ loading: true })
     fetch(url)
       .then(x => x.json())
       .then(json => {
@@ -224,6 +262,7 @@ class Youtubelink extends Component {
         this.setState({
           icon: first.snippet.thumbnails.default.url,
           watch: `https://www.youtube.com/watch?v=${first.id.videoId}`,
+          loading: false,
         })
       })
       .catch(function(error) {
@@ -234,14 +273,18 @@ class Youtubelink extends Component {
     return (
       <div onMouseOver={this.onHover}>
         <a target="blank" href={this.state.watch}>
-          <img
-            alt="yt"
-            src={
-              this.state.icon ||
-              'http://icons.iconarchive.com/icons/dtafalonso/android-lollipop/72/Youtube-icon.png'
-            }
-            style={{ height: 16, width: 16 }}
-          />
+          {this.state.loading ? (
+            <img src="https://loading.io/spinners/comments/index.message-input-loading-gif.svg" />
+          ) : (
+            <img
+              alt="yt"
+              src={
+                this.state.icon ||
+                'http://icons.iconarchive.com/icons/dtafalonso/android-lollipop/72/Youtube-icon.png'
+              }
+              style={{ height: 50 }}
+            />
+          )}
         </a>
       </div>
     )
