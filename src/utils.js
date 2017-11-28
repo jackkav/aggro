@@ -6,13 +6,14 @@ export const isExpired = key => {
   console.log(key + ' has Expired', moment().isAfter(expire))
   return moment().isAfter(expire)
 }
-export const setExpiry = (key, value) => {
+export const setExpiry = (key, value, hours = 1) => {
   localStorage.setItem(
     key + '.lastScrape',
     moment()
-      .add(1, 'hour')
+      .add(hours, 'hour')
       .format(),
   )
+  //TODO: only update this after a full day has passed
   localStorage.setItem(
     key + '.lastScrapeData',
     JSON.stringify(

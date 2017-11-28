@@ -48,7 +48,7 @@ export class Pb extends Component {
     })
     if (this.state.shows.length) {
       this.setState({ loading: false })
-      setExpiry(scrapeKey, this.state.shows)
+      setExpiry(scrapeKey, this.state.shows, 12)
     }
   }
   render() {
@@ -63,10 +63,12 @@ export class Pb extends Component {
             'YYYY-MM-DD HH:SS',
           ).fromNow()
           const last = getLastVisitPostion(x.magnet)
+          const current = i + 1
           return (
             <OneRow
+              key={x.magnet}
               x={x}
-              i={i}
+              i={current}
               last={last}
               timeSinceRelease={timeSinceRelease}
             />
@@ -77,9 +79,13 @@ export class Pb extends Component {
   }
 }
 const getLastVisitPostion = magnet => {
-  const lastVisitIds =
-    JSON.parse(localStorage.getItem('aggro.pb.201.lastScrapeData')) ||
-    Nov21PbAll
+  const lastScrapeDate = localStorage.getItem('aggro.pb.201.lastScrape')
+  const refreshedToday = moment().isSameOrAfter(lastScrapeDate, 'day')
+  //hmm logic too complicated
+  const lastVisitIds = refreshedToday
+    ? JSON.parse(localStorage.getItem('aggro.pb.201.lastScrapeData'))
+    : Nov21PbAll
+
   return (
     lastVisitIds.findIndex(
       y => y === magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
@@ -87,49 +93,54 @@ const getLastVisitPostion = magnet => {
   )
 }
 const getStandingChange = (prev, current) => {
-  if (!prev) return '•'
-  if (current < prev) return '⬆︎'
-  if (current > prev) return '⬇︎'
-  return '•'
-}
-const getStandingChangeColor = (prev, current) => {
-  if (!prev) return 'white'
-  if (current < prev) return 'green'
-  if (current > prev) return 'red'
-  return 'white'
+  if (!prev)
+    return 'http://icons.iconarchive.com/icons/custom-icon-design/pretty-office-11/16/new-icon.png'
+  if (current < prev)
+    return 'http://icons.iconarchive.com/icons/visualpharm/must-have/16/Stock-Index-Up-icon.png'
+  if (current > prev)
+    return 'http://icons.iconarchive.com/icons/visualpharm/must-have/16/Stock-Index-Down-icon.png'
+  return 'http://icons.iconarchive.com/icons/famfamfam/silk/16/resultset-next-icon.png'
 }
 const getUsefulLastVisit = () => {
   //if last visit was over a day use local storage
   //maybe create a first visit store?
   //if not use local
 }
+const getLastPosition = (prev, current) => {
+  if (!prev) return `new`
+  if (prev === current) return 'no change'
+  return 'prev #' + prev
+}
 const OneRow = ({ x, i, last, timeSinceRelease }) => (
-  <Row key={x.magnet} i={i}>
+  <Row i={i}>
     <StandingView>
-      <StandingChange color={getStandingChangeColor(last, i + 1)}>
-        {getStandingChange(last, i + 1)}
+      <StandingChange>
+        <img alt="." src={getStandingChange(last, i)} />
       </StandingChange>
       <StandingWrapper>
-        <StandingPosition>{i + 1}</StandingPosition>
+        <StandingPosition>{i}</StandingPosition>
         <LastVisitStandingPosition>
-          {last ? 'last #' + last : 'new'}
+          {getLastPosition(last, i)}
         </LastVisitStandingPosition>
       </StandingWrapper>
 
       <MediaLinks>
         <a href={x.magnet}>
-          <img alt="m" src="https://eztv.ag/images/magnet-icon-5.png" />
+          <img
+            alt="m"
+            src="http://icons.iconarchive.com/icons/emey87/trainee/16/Magnet-icon.png"
+          />
         </a>
+        <Youtubelink fullname={x.name} />
       </MediaLinks>
     </StandingView>
     <MediaView>
       <TitleView>{x.name}</TitleView>
       <MetadataView>
-        Size: {x.size} Released: {timeSinceRelease}
+        Size: {x.size} Released: {x.uploadedAt}
       </MetadataView>
     </MediaView>
 
-    {/* <Youtubelink fullname={x.name} /> */}
     {/* {!magnetId.includes(
 x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
 ) && '*'} */}
@@ -154,6 +165,7 @@ const StandingWrapper = styled.div`
   display: flex;
   flex-direction: column;
   flex: 4;
+  min-width: 70;
 `
 const StandingPosition = styled.div`
   flex: 2;
@@ -166,6 +178,7 @@ const LastVisitStandingPosition = styled.div`
 
 const MediaLinks = styled.div`
   display: flex;
+  flex-direction: column;
   flex: 2;
   align-items: center;
   justify-content: center;
@@ -194,33 +207,43 @@ class Youtubelink extends Component {
   state = {
     icon: '',
   }
-  onHover() {}
-  render() {
+  onHover = e => {
+    if (this.state.watch) return
     const { fullname } = this.props
     const { name, year, title, uploadedAt } = pbParse(fullname)
-    const searchTerm = name + ' ' + year
-    // console.log(name, uploadedAt)
+    const searchTerm = name + ' ' + year + ' trailer'
     if (!searchTerm) return null
     const url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyBjnMTlF9ou968qeDBc6LQpN860jJ0Juj0&q=${
       searchTerm
     }&part=snippet`
-    // fetch(url)
-    //   .then(x => x.json())
-    //   .then(json => {
-    //     const first = json.items[0]
-    //     console.log(url, first)
-    //     this.setState({
-    //       icon: first.snippet.thumbnails.default.url,
-    //       watch: `https://www.youtube.com/watch?v=${first.id.videoId}`,
-    //     })
-    //   })
-    //   .catch(function(error) {
-    //     console.log('error', JSON.stringify(error.message))
-    //   })
+    fetch(url)
+      .then(x => x.json())
+      .then(json => {
+        const first = json.items[0]
+        console.log(url, first)
+        this.setState({
+          icon: first.snippet.thumbnails.default.url,
+          watch: `https://www.youtube.com/watch?v=${first.id.videoId}`,
+        })
+      })
+      .catch(function(error) {
+        console.log('error', JSON.stringify(error.message))
+      })
+  }
+  render() {
     return (
-      <a target="blank" href={this.state.watch}>
-        <img alt="yt" src={this.state.icon} style={{ height: 16, width: 16 }} />
-      </a>
+      <div onMouseOver={this.onHover}>
+        <a target="blank" href={this.state.watch}>
+          <img
+            alt="yt"
+            src={
+              this.state.icon ||
+              'http://icons.iconarchive.com/icons/dtafalonso/android-lollipop/72/Youtube-icon.png'
+            }
+            style={{ height: 16, width: 16 }}
+          />
+        </a>
+      </div>
     )
   }
 }
