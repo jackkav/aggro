@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import cheerio from 'cheerio'
-import moment from 'moment'
+import moment, { updateLocale } from 'moment'
 import styled from 'styled-components'
 import { isExpired, setExpiry } from './utils'
 import { Nov21PbAll } from './test'
@@ -62,10 +62,6 @@ export class Pb extends Component {
       <div>
         {this.state.error}
         {this.state.shows.map((x, i) => {
-          const timeSinceRelease = moment(
-            moment().format('YYYY') + '-' + x.uploadedAt,
-            'YYYY-MM-DD HH:SS',
-          ).fromNow()
           const last = getLastVisitPostion(x.magnet)
           const current = i + 1
           return (
@@ -74,13 +70,20 @@ export class Pb extends Component {
               x={x}
               i={current}
               last={last}
-              timeSinceRelease={timeSinceRelease}
+              timeSinceRelease={parseReleaseTime(x.uploadedAt)}
             />
           )
         })}
       </div>
     )
   }
+}
+const parseReleaseTime = uploadedAt => {
+  let timeSinceRelease
+  if (uploadedAt.includes(':'))
+    timeSinceRelease = moment(uploadedAt, 'MM-DD HH:SS').fromNow()
+  else timeSinceRelease = moment(uploadedAt, 'MM-DD YYYY').fromNow()
+  return timeSinceRelease
 }
 const getLastVisitPostion = magnet => {
   // const lastScrapeDate = localStorage.getItem('aggro.pb.201.lastScrape')
@@ -135,7 +138,7 @@ const OneRow = ({ x, i, last, timeSinceRelease }) => (
     <MediaView>
       <TitleView>{x.name}</TitleView>
       <MetadataView>
-        Size: {x.size} Released: {x.uploadedAt}
+        Size: {x.size} Released: {x.uploadedAt} {timeSinceRelease}
         <a href={x.magnet}>
           <img
             alt="m"
@@ -274,7 +277,7 @@ class Youtubelink extends Component {
       <div onMouseOver={this.onHover}>
         <a target="blank" href={this.state.watch}>
           {this.state.loading ? (
-            <img src="https://loading.io/spinners/comments/index.message-input-loading-gif.svg" />
+            <img src="http://icons.iconarchive.com/icons/dtafalonso/android-lollipop/96/Youtube-icon.png" />
           ) : (
             <img
               alt="yt"
