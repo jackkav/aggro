@@ -125,12 +125,6 @@ const OneRow = ({ x, i, last, timeSinceRelease }) => (
       </StandingWrapper>
 
       <MediaLinks>
-        <a href={x.magnet}>
-          <img
-            alt="m"
-            src="http://icons.iconarchive.com/icons/emey87/trainee/16/Magnet-icon.png"
-          />
-        </a>
         <Youtubelink fullname={x.name} />
       </MediaLinks>
     </StandingView>
@@ -138,6 +132,12 @@ const OneRow = ({ x, i, last, timeSinceRelease }) => (
       <TitleView>{x.name}</TitleView>
       <MetadataView>
         Size: {x.size} Released: {x.uploadedAt}
+        <a href={x.magnet}>
+          <img
+            alt="m"
+            src="http://icons.iconarchive.com/icons/emey87/trainee/16/Magnet-icon.png"
+          />
+        </a>
       </MetadataView>
     </MediaView>
 
@@ -240,7 +240,7 @@ class Youtubelink extends Component {
               this.state.icon ||
               'http://icons.iconarchive.com/icons/dtafalonso/android-lollipop/72/Youtube-icon.png'
             }
-            style={{ height: 16, width: 16 }}
+            style={{ height: 50 }}
           />
         </a>
       </div>
