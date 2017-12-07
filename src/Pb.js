@@ -61,6 +61,24 @@ export class Pb extends Component {
     return (
       <div>
         {this.state.error}
+        <div>This week</div>
+        {this.state.shows
+          .map((x, i) => ({ ...x, pos: i }))
+          .filter(x => isReleasedThisWeek(x.uploadedAt))
+          .map((x, i) => {
+            const last = getLastVisitPostion(x.magnet)
+            const current = x.pos + 1
+            return (
+              <OneRow
+                key={x.magnet}
+                x={x}
+                i={current}
+                last={last}
+                timeSinceRelease={parseReleaseTime(x.uploadedAt)}
+              />
+            )
+          })}
+        <div>All time</div>
         {this.state.shows.map((x, i) => {
           const last = getLastVisitPostion(x.magnet)
           const current = i + 1
@@ -84,6 +102,13 @@ const parseReleaseTime = uploadedAt => {
     timeSinceRelease = moment(uploadedAt, 'MM-DD HH:SS').fromNow()
   else timeSinceRelease = moment(uploadedAt, 'MM-DD YYYY').fromNow()
   return timeSinceRelease
+}
+const isReleasedThisWeek = uploadedAt => {
+  let timeSinceRelease
+  if (uploadedAt.includes(':'))
+    timeSinceRelease = moment(uploadedAt, 'MM-DD HH:SS')
+  else timeSinceRelease = moment(uploadedAt, 'MM-DD YYYY')
+  return timeSinceRelease.isAfter(moment().subtract(7, 'day'))
 }
 const getLastVisitPostion = magnet => {
   // const lastScrapeDate = localStorage.getItem('aggro.pb.201.lastScrape')
@@ -145,7 +170,7 @@ const OneRow = ({ x, i, last, timeSinceRelease }) => (
             src="http://icons.iconarchive.com/icons/emey87/trainee/16/Magnet-icon.png"
           />
         </a>
-        <MoreInfo url={x.url} />
+        {/* <MoreInfo url={x.url} /> */}
       </MetadataView>
     </MediaView>
 
