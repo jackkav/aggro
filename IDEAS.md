@@ -1,5 +1,10 @@
 #Ideas
 
+##TODO
+
+1. show comments somewhere
+1. most popular this week
+1. scrape imdb
 
 ##Pb
 
