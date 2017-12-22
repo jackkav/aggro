@@ -96,20 +96,19 @@ export class Pb extends Component {
     )
   }
 }
-const parseReleaseTime = uploadedAt => {
+const parse = uploadedAt => {
   let timeSinceRelease
-  if (uploadedAt.includes(':'))
-    timeSinceRelease = moment(uploadedAt, 'MM-DD HH:SS').fromNow()
-  else timeSinceRelease = moment(uploadedAt, 'MM-DD YYYY').fromNow()
-  return timeSinceRelease
-}
-const isReleasedThisWeek = uploadedAt => {
-  let timeSinceRelease
-  if (uploadedAt.includes(':'))
+  if (uploadedAt.includes('Y-day'))
+    timeSinceRelease = moment().subtract(1, 'day')
+  else if (uploadedAt.includes(':'))
     timeSinceRelease = moment(uploadedAt, 'MM-DD HH:SS')
   else timeSinceRelease = moment(uploadedAt, 'MM-DD YYYY')
-  return timeSinceRelease.isAfter(moment().subtract(7, 'day'))
+  return timeSinceRelease
 }
+const parseReleaseTime = uploadedAt => parse(uploadedAt).fromNow()
+const isReleasedThisWeek = uploadedAt =>
+  parse(uploadedAt).isAfter(moment().subtract(7, 'day'))
+
 const getLastVisitPostion = magnet => {
   // const lastScrapeDate = localStorage.getItem('aggro.pb.201.lastScrape')
   // const refreshedToday = moment().isSameOrAfter(lastScrapeDate, 'day')
@@ -278,9 +277,7 @@ class Youtubelink extends Component {
     const { name, year, title, uploadedAt } = pbParse(fullname)
     const searchTerm = name + ' ' + year + ' trailer'
     if (!searchTerm) return null
-    const url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyBjnMTlF9ou968qeDBc6LQpN860jJ0Juj0&q=${
-      searchTerm
-    }&part=snippet`
+    const url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyBjnMTlF9ou968qeDBc6LQpN860jJ0Juj0&q=${searchTerm}&part=snippet`
     this.setState({ loading: true })
     fetch(url)
       .then(x => x.json())
