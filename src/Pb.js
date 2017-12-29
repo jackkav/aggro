@@ -11,21 +11,32 @@ export class Pb extends Component {
     shows: [],
     page: 0,
     loading: false,
+    fresh: false,
     error: '',
   }
   async componentDidMount() {
     const scrapeKey = 'aggro.pb.201'
     if (!isExpired(scrapeKey)) {
       console.log('loading cached pb scrape')
-      this.setState({ shows: JSON.parse(localStorage.getItem(scrapeKey)) })
+      this.setState({
+        shows: JSON.parse(localStorage.getItem(scrapeKey)),
+        fresh: false,
+      })
       return
     }
 
     console.log('loading fresh pb scrape')
-    this.setState({ loading: true })
-    const f = await fetch(
-      'https://cors-anywhere.herokuapp.com/thepiratebay.rocks/top/201',
+    this.setState({
+      loading: true,
+    })
+
+    let f = await fetch(
+      'https://cors-anywhere.herokuapp.com/thepiratebay.org/top/201',
     )
+    if (f.status === 404)
+      f = await fetch(
+        'https://cors-anywhere.herokuapp.com/thepiratebay.rocks/top/201',
+      )
     if (!f.ok) {
       this.setState({
         error: 'broken link',
@@ -47,23 +58,42 @@ export class Pb extends Component {
       const id = magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0]
       const { title, uploadedAt, size } = pbParse(name)
       console.log('url', url)
-      const newItem = { id, name: title, magnet, uploadedAt, size, url }
-      this.setState({ shows: [...this.state.shows, newItem] })
+      const newItem = {
+        id,
+        name: title,
+        magnet,
+        uploadedAt,
+        size,
+        url,
+      }
+      this.setState({
+        shows: [...this.state.shows, newItem],
+      })
     })
     if (this.state.shows.length) {
-      this.setState({ loading: false })
+      this.setState({
+        loading: false,
+        fresh: true,
+      })
       setExpiry(scrapeKey, this.state.shows, 12)
     }
   }
   render() {
-    if (this.state.loading) return <div>loading</div>
+    if (this.state.loading) return <div> loading </div>
     const magnetId = Nov21PbAll
     return (
       <div>
         {this.state.error}
-        <div>This week</div>
+        <div>
+          {this.state.fresh ? 'Fresh ' : 'Old '}
+          Tomatoes
+        </div>
+        <div> This week </div>
         {this.state.shows
-          .map((x, i) => ({ ...x, pos: i }))
+          .map((x, i) => ({
+            ...x,
+            pos: i,
+          }))
           .filter(x => isReleasedThisWeek(x.uploadedAt))
           .map((x, i) => {
             const last = getLastVisitPostion(x.magnet)
@@ -78,7 +108,7 @@ export class Pb extends Component {
               />
             )
           })}
-        <div>All time</div>
+        <div> All time </div>
         {this.state.shows.map((x, i) => {
           const last = getLastVisitPostion(x.magnet)
           const current = i + 1
@@ -149,20 +179,20 @@ const OneRow = ({ x, i, last, timeSinceRelease }) => (
         <img alt="." src={getStandingChange(last, i)} />
       </StandingChange>
       <StandingWrapper>
-        <StandingPosition>{i}</StandingPosition>
+        <StandingPosition> {i} </StandingPosition>
         <LastVisitStandingPosition>
           {getLastPosition(last, i)}
         </LastVisitStandingPosition>
       </StandingWrapper>
-
       <MediaLinks>
         <Youtubelink fullname={x.name} />
       </MediaLinks>
     </StandingView>
     <MediaView>
-      <TitleView>{x.name}</TitleView>
+      <TitleView> {x.name} </TitleView>
       <MetadataView>
-        Size: {x.size} Released: {x.uploadedAt} {timeSinceRelease}
+        Size: {x.size}
+        Released: {x.uploadedAt} {timeSinceRelease}
         <a href={x.magnet}>
           <img
             alt="m"
@@ -172,10 +202,9 @@ const OneRow = ({ x, i, last, timeSinceRelease }) => (
         {/* <MoreInfo url={x.url} /> */}
       </MetadataView>
     </MediaView>
-
     {/* {!magnetId.includes(
-x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
-) && '*'} */}
+    x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
+    ) && '*'} */}
   </Row>
 )
 class MoreInfo extends Component {
@@ -187,13 +216,18 @@ class MoreInfo extends Component {
     const url = 'https://cors-anywhere.herokuapp.com/' + this.props.url
 
     console.log('event', url)
-    this.setState({ loading: true })
+    this.setState({
+      loading: true,
+    })
     fetch(url)
       .then(x => x.text())
       .then(body => {
         const $ = cheerio.load(body)
         const summary = $('.nfo pre').text()
-        this.setState({ loading: false, summary })
+        this.setState({
+          loading: false,
+          summary,
+        })
         console.log($('#comments .comment').text())
       })
       .catch(function(error) {
@@ -278,7 +312,9 @@ class Youtubelink extends Component {
     const searchTerm = name + ' ' + year + ' trailer'
     if (!searchTerm) return null
     const url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyBjnMTlF9ou968qeDBc6LQpN860jJ0Juj0&q=${searchTerm}&part=snippet`
-    this.setState({ loading: true })
+    this.setState({
+      loading: true,
+    })
     fetch(url)
       .then(x => x.json())
       .then(json => {
@@ -307,7 +343,9 @@ class Youtubelink extends Component {
                 this.state.icon ||
                 'http://icons.iconarchive.com/icons/dtafalonso/android-lollipop/72/Youtube-icon.png'
               }
-              style={{ height: 50 }}
+              style={{
+                height: 50,
+              }}
             />
           )}
         </a>
