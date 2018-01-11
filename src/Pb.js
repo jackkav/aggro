@@ -329,6 +329,7 @@ class Youtubelink extends Component {
       .catch(function(error) {
         console.log('error', JSON.stringify(error.message))
       })
+    // timed load? only load top of the list?
     fetch(`http://www.omdbapi.com/?apikey=6cf170d0&t=${name}&y=${year}`)
       .then(x => x.json())
       .then(json => {
