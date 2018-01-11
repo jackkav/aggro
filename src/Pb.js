@@ -319,7 +319,7 @@ class Youtubelink extends Component {
       .then(x => x.json())
       .then(json => {
         const first = json.items[0]
-        console.log(url, first)
+        // console.log(url, first)
         this.setState({
           icon: first.snippet.thumbnails.default.url,
           watch: `https://www.youtube.com/watch?v=${first.id.videoId}`,
@@ -331,7 +331,10 @@ class Youtubelink extends Component {
       })
     fetch(`http://www.omdbapi.com/?apikey=6cf170d0&t=${name}&y=${year}`)
       .then(x => x.json())
-      .then(json => console.log(json))
+      .then(json => {
+        console.log(json)
+        this.setState({ rating: json.imdbRating })
+      })
   }
   render() {
     return (
@@ -352,6 +355,7 @@ class Youtubelink extends Component {
             />
           )}
         </a>
+        <div>{this.state.rating}</div>
       </div>
     )
   }
