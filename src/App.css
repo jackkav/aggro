@@ -1,34 +1,17 @@
-.App {
-  text-align: center;
+.header {
+  height: 100px;
+}
+.movie-card {
+  margin-left: 10px;
+  margin-bottom: 10px;
+  max-width: 300px;
+  width: 300px;
 }
 
-.App-header {
-  background-color: #4e4227;
-  height: 60px;
-  padding: 20px;
-  color: #b29662;
+.movie-card.card {
+  height: 450px;
 }
 
-.App-title {
-  font-size: 1.5em;
-}
-
-.flex-container {
-  display: flex;
-  /* flex-flow: row wrap; */
-  flex-flow: column;
-}
-.flex-item {
-  flex: 1;
-  background: white;
-  min-height: 300px;
-  margin: 10px;
-}
-
-.flex-content {
-  /* line-height: 150px; */
-  color: black;
-  /* font-weight: bold; */
+.card-footer-badge {
   font-size: 1rem;
-  text-align: left;
 }

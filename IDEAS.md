@@ -14,19 +14,19 @@
 1. scrollview load more on scroll to bottom
 
 #Loading strategy
-first render
+##first render
 card shape
 skeleton
 
-second render
+##second render
 title
 magnet
 quality
 
-on card hover/touch
+##on card hover/touch
 description
 
-on card on screen
+##on card on screen
 poster
 rating
 youtube link
