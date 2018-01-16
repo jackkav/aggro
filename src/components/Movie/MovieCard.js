@@ -60,7 +60,10 @@ const MovieCard = props => (
             />
           </div>
           <div className="card-footer-badge float-right badge badge-primary badge-pill">
-            {props.movie.rating || 'loading'}
+            {props.movie.rating || '?'}
+          </div>
+          <div className="card-footer-badge float-right badge badge-secondary badge-pill">
+            {props.movie.quality || 'HD'}
           </div>
         </div>
       </div>
