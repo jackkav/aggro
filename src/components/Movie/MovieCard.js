@@ -16,8 +16,19 @@ const MovieCard = props => (
       </div>
       <div className="card-footer">
         <div className="clearfix">
-          <div className="float-left mt-1">
-            {/* <StarRating rating={props.movie.rating} /> */}
+          <div className="float-left">
+            <img
+              src="http://icons.iconarchive.com/icons/dtafalonso/android-lollipop/96/Youtube-icon.png"
+              style={{
+                height: 30,
+              }}
+            />
+            <img
+              src="http://icons.iconarchive.com/icons/emey87/trainee/16/Magnet-icon.png"
+              style={{
+                height: 30,
+              }}
+            />
           </div>
           <div className="card-footer-badge float-right badge badge-primary badge-pill">
             {props.movie.rating}

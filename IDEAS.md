@@ -2,6 +2,8 @@
 
 ##Pb
 
+1. skeleton
+1. quality tag
 1. card design.
 1. hover comments X
 1. hover imdb X
