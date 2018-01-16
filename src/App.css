@@ -15,3 +15,7 @@
 .card-footer-badge {
   font-size: 1rem;
 }
+.card-img-top {
+  object-fit: cover;
+  height: 250px;
+}
