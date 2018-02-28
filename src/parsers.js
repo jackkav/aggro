@@ -1,15 +1,7 @@
+import moment from 'moment'
+
 export const pbParse = input => {
   if (!input) return false
-  if (
-    input.match(/(Home And Away)|(Judge Judy)|(Coronation Street)|(Emmerdale)/)
-  )
-    return false
-  const e =
-    input.match(/S\d\dE\d\d/) ||
-    input.match(/\d{4} \d{2} \d{2}/) ||
-    input.match(/Series \d \d{1,2}of\d{1,2}/)
-  const episode = e ? e.toString() : ''
-  const q = input.match(/1080p/) || input.match(/720p/)
   const size =
     input.match(/Size (.*?), ULed/) &&
     input.match(/Size (.*?), ULed/).length > 1 &&
@@ -17,41 +9,76 @@ export const pbParse = input => {
       .match(/Size (.*?), ULed/)[1]
       .replace('MiB', 'MB')
       .replace('GiB', 'GB')
-  const quality = q ? q.toString() : 'HDTV'
-  const year =
+
+  const r =
+    input.match(/HDRip/i) ||
+    input.match(/BRRip/i) ||
+    input.match(/DVDRip/i) ||
+    input.match(/DVDScr/i) ||
+    input.match(/HDCAM/i) ||
+    input.match(/HD-TS/i) ||
+    input.match(/TSRip/i) ||
+    input.match(/WED-DL/i)
+  const quality = r ? r.toString() : 'N/A'
+  const qualityIndex = input.indexOf(quality)
+
+  const uploadedIndex = input.indexOf('Uploaded')
+  const sizeIndex = input.indexOf(' Size')
+  const endOfTitleIndex = uploadedIndex
+  const y =
     input.match(/2015/) ||
     input.match(/2016/) ||
     input.match(/2017/) ||
     input.match(/2018/)
-  const yearIndex = input.indexOf(year)
-  const episodeIndex = input.indexOf(episode)
-  const uploadedIndex = input.indexOf('Uploaded')
-  const sizeIndex = input.indexOf(' Size')
-  const endOfTitleIndex = uploadedIndex
+  const year = y ? y.toString() : new Date().getFullYear().toString()
+  const yearIndex = input.slice(0, endOfTitleIndex - 1).indexOf(year)
+
   const title = input
     .slice(0, endOfTitleIndex - 1)
     .replace(/\./g, ' ')
     .replace(/\n/g, '')
     .replace(/\t/g, '')
-  const name = input
-    .slice(0, yearIndex - 1)
+    .trim()
+
+  const endOfMovieTitle = yearIndex > 0 ? yearIndex : qualityIndex
+  const movieTitle = input
+    .slice(0, endOfMovieTitle - 1)
     .replace(/\./g, ' ')
     .replace(/\n/g, '')
     .replace(/\t/g, '')
     .trim()
 
-  const uploadedAt = input
+  const full = input
+    .replace(/\./g, ' ')
+    .replace(/\n/g, '')
+    .replace(/\t/g, '')
+    .trim()
+
+  const uploadedAtTime = input
     .slice(uploadedIndex + 9, sizeIndex - 1)
     .replace(/\./g, ' ')
     .replace(/\n/g, '')
     .replace(/\t/g, '')
+  const uploadedAt = parseLooseDate(uploadedAtTime).toISOString()
+
   return {
-    episode,
     quality,
     size,
     title,
-    name,
+    movieTitle,
     year,
     uploadedAt,
+    full,
   }
+}
+
+const parseLooseDate = uploadedAt => {
+  let timeSinceRelease
+  if (uploadedAt.includes('Today')) timeSinceRelease = moment()
+  else if (uploadedAt.includes('Y-day'))
+    timeSinceRelease = moment().subtract(1, 'day')
+  else if (uploadedAt.includes(':'))
+    timeSinceRelease = moment(uploadedAt, 'MM-DD HH:SS')
+  else timeSinceRelease = moment(uploadedAt, 'MM-DD YYYY')
+  return timeSinceRelease
 }

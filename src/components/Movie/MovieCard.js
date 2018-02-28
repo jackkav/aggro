@@ -19,14 +19,23 @@ const Title = props => (
 const Image = props => (
   <div>
     {props.movie.imageUrl ? (
-      <img className="card-img-top" src={props.movie.imageUrl} alt="" />
+      <img
+        src={props.movie.imageUrl}
+        alt={props.movie.name}
+        width={298}
+        height={400}
+        mode="fill"
+      />
     ) : (
       <div
-        className="card-img-top"
         style={{
           background: 'gray',
+          width: 298,
+          height: 400,
         }}
-      />
+      >
+        {props.movie.name}
+      </div>
     )}
   </div>
 )
@@ -34,15 +43,13 @@ const MovieCard = props => (
   <div className="movie-card">
     <div className="movie-card card">
       <Image movie={props.movie} />
-      <div className="card-body">
-        <Title movie={props.movie} />
+      {/* <Title movie={props.movie} />
         <h6 className="card-subtitle mb-2 text-muted">
           {props.movie.subtitle}
         </h6>
         <p className="text-justify" style={{ fontSize: '14px' }}>
           {props.movie.description}
-        </p>
-      </div>
+        </p> */}
       <div className="card-footer">
         <div className="clearfix">
           <div className="float-left">

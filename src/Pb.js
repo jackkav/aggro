@@ -6,6 +6,40 @@ import { isExpired, setExpiry } from './utils'
 import { Nov21PbAll } from './test'
 import { pbParse } from './parsers'
 
+const getPB = async () => {
+  let f = await fetch(
+    'https://cors-anywhere.herokuapp.com/thepiratebay.org/top/201',
+  )
+  if (f.status === 404)
+    f = await fetch(
+      'https://cors-anywhere.herokuapp.com/thepiratebay.rocks/top/201',
+    )
+  const body = await f.text()
+  const $ = cheerio.load(body)
+  const s = $('a[title="Download this torrent using magnet"]').map(item => {
+    const magnet = item.attribs.href
+    const name = $(item)
+      .parent()
+      .text()
+
+    const url = $(item)
+      .parent()
+      .find('.detName a')[0].attribs.href
+    const id = magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0]
+    const { title, uploadedAt, size } = pbParse(name)
+    // console.log('url', url)
+    const newItem = {
+      id,
+      name: title,
+      magnet,
+      uploadedAt,
+      size,
+      url,
+    }
+    return newItem
+  })
+  return s
+}
 export class Pb extends Component {
   state = {
     shows: [],
