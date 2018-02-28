@@ -207,32 +207,28 @@ const OneRow = ({ x, i, last, timeSinceRelease }) => (
     ) && '*'} */}
   </Row>
 )
+
+const getPBComments = async url => {
+  let f = await fetch(`https://cors-anywhere.herokuapp.com/${url}`)
+  let body = await f.text()
+  const $ = cheerio.load(body)
+  const summary = $('.nfo pre').text()
+  console.log($('#comments .comment').text())
+  return {
+    summary,
+  }
+}
 class MoreInfo extends Component {
   state = {
     summary: '',
     loading: false,
   }
-  onHover = () => {
-    const url = 'https://cors-anywhere.herokuapp.com/' + this.props.url
-
-    console.log('event', url)
+  onHover = async () => {
     this.setState({
       loading: true,
     })
-    fetch(url)
-      .then(x => x.text())
-      .then(body => {
-        const $ = cheerio.load(body)
-        const summary = $('.nfo pre').text()
-        this.setState({
-          loading: false,
-          summary,
-        })
-        console.log($('#comments .comment').text())
-      })
-      .catch(function(error) {
-        console.log('error', JSON.stringify(error.message))
-      })
+    const comments = await getPBComments(this.props.url)
+    this.setState({ ...comments, loading: false })
   }
   render() {
     const a = 5
@@ -300,42 +296,46 @@ const MetadataView = styled.div`
   flex: 1;
   color: gray;
 `
+const getYoutube = async (name, year) => {
+  const searchTerm = name + ' ' + year + ' trailer'
+  const url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyBjnMTlF9ou968qeDBc6LQpN860jJ0Juj0&q=${searchTerm}&part=snippet`
+  let f = await fetch(url)
+  let json = await f.json()
+  const first = json.items[0]
+  return {
+    icon: first.snippet.thumbnails.default.url,
+    watch: `https://www.youtube.com/watch?v=${first.id.videoId}`,
+    loading: false,
+  }
+}
+
+const getOmdb = async (name, year) => {
+  const url = `http://www.omdbapi.com/?apikey=6cf170d0&t=${name}&y=${year}`
+  let f = await fetch(url)
+  let json = await f.json()
+  return {
+    rating: json.imdbRating,
+  }
+}
 class Youtubelink extends Component {
   state = {
     icon: '',
     loading: false,
   }
-  onHover = e => {
+  onHover = async e => {
     if (this.state.watch) return
     const { fullname } = this.props
     const { name, year, title, uploadedAt } = pbParse(fullname)
-    const searchTerm = name + ' ' + year + ' trailer'
-    if (!searchTerm) return null
-    const url = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyBjnMTlF9ou968qeDBc6LQpN860jJ0Juj0&q=${searchTerm}&part=snippet`
     this.setState({
       loading: true,
     })
-    fetch(url)
-      .then(x => x.json())
-      .then(json => {
-        const first = json.items[0]
-        // console.log(url, first)
-        this.setState({
-          icon: first.snippet.thumbnails.default.url,
-          watch: `https://www.youtube.com/watch?v=${first.id.videoId}`,
-          loading: false,
-        })
-      })
-      .catch(function(error) {
-        console.log('error', JSON.stringify(error.message))
-      })
+    const yt = await getYoutube(name, year)
+    // console.log(yt)
+    this.setState(yt)
     // timed load? only load top of the list?
-    fetch(`http://www.omdbapi.com/?apikey=6cf170d0&t=${name}&y=${year}`)
-      .then(x => x.json())
-      .then(json => {
-        console.log(json)
-        this.setState({ rating: json.imdbRating })
-      })
+
+    const omdb = await getOmdb(name, year)
+    this.setState(omdb)
   }
   render() {
     return (

@@ -11,8 +11,9 @@ export default class Movies extends Component {
     }
   }
 
-  componentDidMount() {
-    this.setState(() => ({ movies: MovieService.getMovies() }))
+  async componentDidMount() {
+    let movies = await MovieService.getMovies()
+    this.setState(() => ({ movies }))
   }
 
   render() {
