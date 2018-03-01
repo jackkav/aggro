@@ -54,20 +54,29 @@ const MovieCard = props => (
         <div className="clearfix">
           <div className="float-left">
             <img
-              src="http://icons.iconarchive.com/icons/dtafalonso/android-lollipop/96/Youtube-icon.png"
-              style={{
-                height: 30,
-              }}
-            />
-            <img
               src="http://icons.iconarchive.com/icons/emey87/trainee/16/Magnet-icon.png"
               style={{
                 height: 30,
               }}
             />
+            <img
+              src="http://icons.iconarchive.com/icons/dtafalonso/android-lollipop/96/Youtube-icon.png"
+              style={{
+                height: 30,
+              }}
+            />
           </div>
-          <div className="card-footer-badge float-right badge badge-primary badge-pill">
-            {props.movie.rating || '?'}
+          <div
+            className="card-footer-badge float-right badge badge-primary badge-pill"
+            style={{ marginLeft: 10 }}
+          >
+            <a
+              target="_blank"
+              href={`https://www.imdb.com/title/${props.movie.imdbID}`}
+              style={{ color: 'white' }}
+            >
+              {props.movie.rating || '?'}
+            </a>
           </div>
           <div className="card-footer-badge float-right badge badge-secondary badge-pill">
             {props.movie.quality || 'HD'}

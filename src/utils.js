@@ -14,23 +14,23 @@ export const setExpiry = (key, value, hours = 1) => {
       .format(),
   )
   //TODO: only update this after a full day has passed
-  localStorage.setItem(
-    key + '.lastScrapeData',
-    JSON.stringify(
-      value.map(
-        x => x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
-      ),
-    ),
-  )
+  // localStorage.setItem(
+  //   key + '.lastScrapeData',
+  //   JSON.stringify(
+  //     value.map(
+  //       x => x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
+  //     ),
+  //   ),
+  // )
   localStorage.setItem(key, JSON.stringify(value))
 }
-export const setSeenMagnetIds = (key, value) => {
-  localStorage.setItem(
-    key + '.seenScrapeData',
-    JSON.stringify(
-      value.map(
-        x => x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
-      ),
-    ),
-  )
-}
+// export const setSeenMagnetIds = (key, value) => {
+//   localStorage.setItem(
+//     key + '.seenScrapeData',
+//     JSON.stringify(
+//       value.map(
+//         x => x.magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0],
+//       ),
+//     ),
+//   )
+// }
