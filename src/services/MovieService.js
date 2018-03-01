@@ -48,7 +48,6 @@ const getPB = async () => {
   if (!f.ok) {
     return
   }
-  alert('connected: ' + f.ok)
   const body = await f.text()
   const $ = cheerio.load(body)
 
@@ -62,7 +61,6 @@ const getPB = async () => {
       .parent()
       .find('.detName a')[0].attribs.href
     const id = magnet.match(/(?![magnet:?xt=urn:btih:])(.*)(?=&dn)/)[0]
-    // const { title, uploadedAt, size, movieTitle, year } = pbParse(fullTag)
     const p = pbParse(fullTag)
     const newItem = {
       id,
@@ -72,6 +70,5 @@ const getPB = async () => {
     }
     s.push(newItem)
   })
-  alert('total: ' + s.length)
   return s
 }
