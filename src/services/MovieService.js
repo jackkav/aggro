@@ -19,23 +19,16 @@ const getOmdb = async (name, year) => {
 
 export default class MovieService {
   static getMovies = async () => {
-    // return movies
-    // scrape pb, filter this week, for each scrape
     const scrapeKey = 'aggro.pb.201'
-
     let s = localStorage.getItem(scrapeKey)
-    // alert(s)
     let j = s && s.length > 20 && JSON.parse(s)
 
     if (!j) {
       const x = await getPB()
-      const ten =
-        // console.log('123', x)
-        setExpiry(scrapeKey, x, 12)
+      setExpiry(scrapeKey, x, 12)
       j = x
-      // alert(j)
     }
-    for (let i = 0; i <= 7; i++) {
+    for (let i = 0; i < j.length; i++) {
       if (!j[i].rating) {
         let o = await getOmdb(j[i].movieTitle, j[i].year)
         j[i].rating = o.rating
@@ -43,30 +36,19 @@ export default class MovieService {
         j[i].imdbID = o.imdbID
       }
     }
-    // add to localstorageobject
     localStorage.setItem(scrapeKey, JSON.stringify(j))
-    // show on page
-    const k = [j[0], j[1], j[2], j[3], j[4], j[5], j[6]].map(x => {
-      console.log('x', x)
-
-      return x
-    })
-    return k ? k : []
+    return j ? j : []
   }
 }
 
 const getPB = async () => {
-  let f = await fetch(
-    'https://cors-anywhere.herokuapp.com/thepiratebay.org/top/201',
-  )
-  if (f.status === 404)
-    f = await fetch(
-      'https://cors-anywhere.herokuapp.com/thepiratebay.rocks/top/201',
-    )
+  let cors = 'https://cors-anywhere.herokuapp.com/'
+  let f = await fetch(cors + 'thepiratebay.rocks/top/201')
+  if (f.status === 404) f = await fetch(cors + 'thepiratebay.org/top/201')
   if (!f.ok) {
     return
   }
-
+  alert('connected: ' + f.ok)
   const body = await f.text()
   const $ = cheerio.load(body)
 
@@ -90,5 +72,6 @@ const getPB = async () => {
     }
     s.push(newItem)
   })
+  alert('total: ' + s.length)
   return s
 }
