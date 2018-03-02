@@ -15,11 +15,27 @@ export const pbParse = input => {
     input.match(/BRRip/i) ||
     input.match(/DVDRip/i) ||
     input.match(/DVDScr/i) ||
+    input.match(/WED-DL/i) ||
     input.match(/HDCAM/i) ||
+    input.match(/HD CAM/i) ||
     input.match(/HD-TS/i) ||
+    input.match(/HD-TC/i) ||
     input.match(/TSRip/i) ||
-    input.match(/WED-DL/i)
+    input.match(/HDTS/i) ||
+    input.match(/HD TS/i) ||
+    input.match(/HD TC/i)
+  const lowQuality =
+    input.match(/HDCAM/i) ||
+    input.match(/HD CAM/i) ||
+    input.match(/HD-TS/i) ||
+    input.match(/HD-TC/i) ||
+    input.match(/TSRip/i) ||
+    input.match(/HDTS/i) ||
+    input.match(/HD TS/i) ||
+    input.match(/HD TC/i)
+
   const quality = r ? r.toString() : 'N/A'
+  const hd = !lowQuality
   const qualityIndex = input.indexOf(quality)
 
   const uploadedIndex = input.indexOf('Uploaded')
@@ -29,7 +45,8 @@ export const pbParse = input => {
     input.match(/2015/) ||
     input.match(/2016/) ||
     input.match(/2017/) ||
-    input.match(/2018/)
+    input.match(/2018/) ||
+    input.match(/2019/)
   const year = y ? y.toString() : new Date().getFullYear().toString()
   const yearIndex = input.slice(0, endOfTitleIndex - 1).indexOf(year)
 
@@ -69,6 +86,7 @@ export const pbParse = input => {
     year,
     uploadedAt,
     full,
+    hd,
   }
 }
 
