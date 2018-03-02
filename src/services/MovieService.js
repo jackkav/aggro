@@ -28,7 +28,10 @@ export default class MovieService {
       setExpiry(scrapeKey, x, 12)
       j = x
     }
-    for (let i = 0; i < j.length; i++) {
+
+    const numberToShow = 10
+    j = j.slice(0, numberToShow)
+    for (let i = 0; i < numberToShow; i++) {
       if (!j[i].rating) {
         let o = await getOmdb(j[i].movieTitle, j[i].year)
         j[i].rating = o.rating
@@ -37,6 +40,8 @@ export default class MovieService {
       }
     }
     localStorage.setItem(scrapeKey, JSON.stringify(j))
+    // j = j.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt))
+    // console.log(latestReleases.map(x => x.uploadedAt))
     return j ? j : []
   }
 }
